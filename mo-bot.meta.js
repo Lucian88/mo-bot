@@ -6,7 +6,7 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.4.1
+// @version      0.4.1.1
 // @icon         https://mo-bot.googlecode.com/hg/icon/Mo-Bot.png
 // @icon64       https://mo-bot.googlecode.com/hg/icon/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/

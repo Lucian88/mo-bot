@@ -6,7 +6,7 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.4.1
+// @version      0.4.1.1
 // @icon         https://mo-bot.googlecode.com/hg/icon/Mo-Bot.png
 // @icon64       https://mo-bot.googlecode.com/hg/icon/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/
@@ -455,6 +455,7 @@ function handleCommand( cmd, arg, id )
 			case "kick": kick(args[0],"Kicked by "+id);	break;
 			case "zap": kick(args[0],"Kicked by "+id+" #1#1");	break;
 			case "ranks": ranks(args[0],args[1],id);	break;
+			case "chatlog": chatLog();	break;
 		}
 	}
 	if( isBotdev || isDev )
@@ -491,6 +492,25 @@ function handleCommand( cmd, arg, id )
 /////////////
 //FUCNTIONS//
 /////////////
+function chatLog()
+{
+	if( unsafeWindow.CurrentTab == 0 )
+	{
+		var messages = document.getElementsByTagName( 'b' );
+		var users = document.getElementsByClassName( 'username' );
+		var pastetext = "";
+		for( var i in users )
+		{
+			pastetext += users[i].innerHTML + messages[i].innerHTML + '%0A';
+		}
+		pastetext = pastetext.replace( /&nbsp;/gi, " " );
+		tinypaste( pastetext ); // does tinypaste because only tinypaste works correctly with '%0A' as linebreaks
+	}
+	else
+	{
+		sendMessage( 'Bot is not in main chat tab!' );
+	}
+}
 function iMDBsearch( query )
 {
 	query = query.replace(/ /g,"+");
