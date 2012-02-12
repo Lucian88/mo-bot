@@ -11,6 +11,9 @@ If you are testing the bot, you are probably an "advanced" user that should be a
 I will not be releasing my API keys because of the fact that most of them limit the amount of requests you can do daily.
 When possible, I try to not use API keys. Nearly nothing requires them, and some of the things that do have alternatives that don't use API keys.
 
+There is a convenient template page that you can fill out to have an html page that you can double-click to conveniently log in to Xat mobile if you want.
+Just input the details and it should work for you just fine. :)
+
 
 [LIMITATIONS]
 There are limitations to this bot because of it using Xat Mobile and not the real thing.
