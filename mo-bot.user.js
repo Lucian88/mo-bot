@@ -6,7 +6,7 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.4.2.0
+// @version      0.4.3.0
 // @icon         https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @icon64       https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/
@@ -87,7 +87,7 @@ function reboot( normalID )
 	var chat = BotData.currentChat.toLowerCase();
 	if( chat != "wick3d" && chat != "mwisbest" && chat != "moabster" )
 	{
-		sendMessage( 'Unknown chat!' );
+		sendMessage( "Unknown chat!" );
 		return;
 	}
 	else
@@ -132,36 +132,53 @@ var overtakeCode = GM_cryptoHash( time(), "MD5" );
 overtakeCode = overtakeCode.substring( 0, 5 );
 
 document.getElementById( "body" ).bgColor = Colors['Background'];
-document.getElementById( "body" ).innerHTML = "<div id=\"fillMe\" style=\"width: 100%;background-color:" + Colors['Background'] + ";\" ></div><div id=\"tabs\" style=\"height:25px;background-color:" + Colors['Tab'] + ";\"></div><div id=\"name\" style=\"font-size:0px;background-color:" + Colors['Background'] + ";color:" + Colors['Background'] + ";display:none;\" ></div>";
+document.getElementById( "body" ).innerHTML = "<div id=\"fillMe\" style=\"position:relative;left:0px;width:70%;background-color:" + Colors['Background'] + ";\" ></div><div id=\"fillUser\" style=\"position:fixed;top:0px;right:0px;width:30%;text-align:right;background-color:" + Colors['Background'] + ";\" ></div><div id=\"tabs\" style=\"height:25px;background-color:" + Colors['Tab'] + ";\"></div><div id=\"name\" style=\"font-size:0px;background-color:" + Colors['Background'] + ";color:" + Colors['Background'] + ";display:none;\" ></div>";
 document.title = BotData.botName;
 
 unsafeWindow.AddMess = function AddMess( tab, s )
 {
-	curTime = time();
-	last = s.between( "(", ")" );
-	if( curTime >= startTime + extraWait )
+	if( tab != 1 )
 	{
-		var id = tab;
-		if( tab == 0 ) id = s.between( "(", ")" );
-		lastTab = tab;
-		if( isSubStr( s, "<b>" ) )
+		curTime = time();
+		last = s.between( "(", ")" );
+		if( curTime >= startTime + extraWait )
 		{
-			var msg = s.between( "<b>", "</b>" ) + " ";
-			if( msg.charAt( 0 ) == cmdChar )
+			var id = tab;
+			if( tab == 0 ) id = s.between( "(", ")" );
+			lastTab = tab;
+			if( isSubStr( s, "<b>" ) )
 			{
-				var cmd = msg.substring( 1, msg.indexOf( " " ) );
-				handleCommand( cmd, msg.substring( msg.indexOf( " " ) + 1 ), id );
+				var msg = s.between( "<b>", "</b>" ) + " ";
+				if( msg.charAt( 0 ) == cmdChar )
+				{
+					var cmd = msg.substring( 1, msg.indexOf( " " ) );
+					handleCommand( cmd, msg.substring( msg.indexOf( " " ) + 1 ), id );
+				}
 			}
 		}
+		else if( tab == 0 )
+		{
+			unsafeWindow.Messages[0] = "";
+			s = "";
+		}
+		if( tab == -1 ) tab = 0;
+		if( s != "" ) unsafeWindow.Messages[tab] += s + "<br />";
+		if( tab == unsafeWindow.CurrentTab ) unsafeWindow.SetBox( unsafeWindow.Messages[tab] );
 	}
-	else if( tab == 0 )
+	else if( tab == 1 )
 	{
-		unsafeWindow.Messages[0] = "";
-		s = "";
+		if( s != "" )
+		{
+			var test = s.between( "<span style=\"color:" + Colors['Text'] + "\" >", "</span>" );
+			if( isSubStr( unsafeWindow.Messages[1], test.substring( 0, 9 ) ) )
+			{
+				var toReplace = unsafeWindow.Messages[1].between( test.substring( 0, 9 ), "</span>" );
+				unsafeWindow.Messages[1] = unsafeWindow.Messages[1].replace( toReplace, test.substring( 9 ) );
+			}
+			else unsafeWindow.Messages[1] += s + "<br />";
+			unsafeWindow.SetUserBox( unsafeWindow.Messages[1] );
+		}
 	}
-	if( tab == -1 ) tab = 0;
-	if( s != "" ) unsafeWindow.Messages[tab] += s + "<br />";
-	if( tab == unsafeWindow.CurrentTab ) unsafeWindow.SetBox( unsafeWindow.Messages[tab] );
 }
 unsafeWindow.DoMessage = function DoMessage( id, KickBan, Reason )
 {
@@ -180,8 +197,8 @@ unsafeWindow.UserInfo = function UserInfo( node )
 {
 	if( !node.attributes.u ) return;
 	var s, id = parseInt( node.attributes.u.value );
-	if( unsafeWindow.Users[id] == undefined )
-	{
+	//if( unsafeWindow.Users[id] == undefined )
+	//{
 		unsafeWindow.Users[id] = new Array();
 		unsafeWindow.Users[id]['n'] = "" + id;
 		unsafeWindow.Users[id]['N'] = "";
@@ -195,7 +212,7 @@ unsafeWindow.UserInfo = function UserInfo( node )
 		s += unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] );
 		s += "</span>";
 		unsafeWindow.AddMess( 1, s );
-	}
+	//}
 }
 unsafeWindow.DispTabs = function DispTabs()
 {
@@ -204,7 +221,7 @@ unsafeWindow.DispTabs = function DispTabs()
 	for( var n in unsafeWindow.Tabs )
 	{
 		var b1 = b2 = "";
-		if( n == -1 ) continue;
+		if( n == -1 || n == 1 ) continue;
 		if( n == unsafeWindow.CurrentTab ) 
 		{ 
 			b1 = "<B>";
@@ -224,6 +241,11 @@ unsafeWindow.SetBox = function SetBox( s )
 		window.scrollTo( 0, Div.scrollHeight + 75 );
 	}
 	else Div.innerHTML = "";
+}
+unsafeWindow.SetUserBox = function SetUserBox( s )
+{
+	var Div = document.getElementById( "fillUser" );
+	Div.innerHTML = s;
 }
 unsafeWindow.fillElementId = function fillElementId( url, elementId, parameters )
 {

@@ -24,8 +24,8 @@ function getValue( name, defaultValue )
 	value = value.substring( 1 );
 	switch( type )
 	{
-		case "b": return value == "true";	break;
-		case "n": return Number( value );	break;
+		case "b": return value == "true"; break;
+		case "n": return Number( value ); break;
 		default: return value;	break;
 	}
 }
