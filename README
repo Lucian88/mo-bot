@@ -1,0 +1,37 @@
+[[README]]
+
+
+[GENERAL INFO]
+To use the bot, install the script with the Firefox Add-on "Scriptish".
+The bot will only function properly with Scriptish, GreaseMonkey will not work.
+
+Certain features require API keys from various sources.
+I will update this file with the links to get those keys once I fully release the bot.
+If you are testing the bot, you are probably an "advanced" user that should be able to retrieve them yourself.
+I will not be releasing my API keys because of the fact that most of them limit the amount of requests you can do daily.
+When possible, I try to not use API keys. Nearly nothing requires them, and some of the things that do have alternatives that don't use API keys.
+
+
+[LIMITATIONS]
+There are limitations to this bot because of it using Xat Mobile and not the real thing.
+Limitations marked with "[X]" are issues with Xat and not the bot.
+Limitations marked with "[S]" are issues with Scriptish and not the bot.
+Limitations marked with "[MW]" are issues with me and are the bot.
+Limitations marked with "[?]" are issues that are unknown as to what is the cause of the issue and may or may not be the bot.
+
+[X] 1. Long messages cannot be sent instantly. When long messages are sent at a fast pace, the bot has a tendency to "log out".
+       To overcome this, long messages are typically sent at a delay. Delays typically run anywhere from half a second to 3 seconds.
+       There isn't really much to be missed out on with this, so it isn't that great of an issue.
+       In case of a "log out" or "crash", the bot will reboot itself as long as the login information for Xat is filled out in the script.
+
+[X] 2. Messages with special characters might not be sent at all.
+       It appears that Xat's way of posting messages to the chat does not support UTF-8 encoding.
+       To overcome this, the bot has a list of special characters that are removed or replaced with ones that work.
+       For example, most (if not all) accented letters are replaced with ones that are non-accented.
+
+If you notice any other issues or ones I might have forgotten, please make an issue in the Issues section of the Google Code page.
+
+
+
+The repository will not always be the latest version. I actually test changes before I release things.
+If you are looking for me, I can most likely be found on http://www.xat.com/wick3d
