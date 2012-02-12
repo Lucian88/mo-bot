@@ -6,9 +6,9 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.4.1.1
-// @icon         https://mo-bot.googlecode.com/hg/icon/Mo-Bot.png
-// @icon64       https://mo-bot.googlecode.com/hg/icon/Mo-Bot.png
+// @version      0.4.2.0
+// @icon         https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
+// @icon64       https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/
 // @require      https://mo-bot.googlecode.com/hg/mo-bot.util.js
 // @updateURL    https://mo-bot.googlecode.com/hg/mo-bot.meta.js
@@ -28,7 +28,6 @@
  */
 
 
-
 var cmdChar = "!";
 var extraWait = 2;
 var originalDate = new Date();
@@ -40,18 +39,18 @@ var scrambling = false;
 var scrambleWord = "";
 var scrambleAnswer = "";
 var ApiKeys = [];
-ApiKeys["spellCheck"] = "";
-ApiKeys["lastFm"] = "";
-ApiKeys["translate"] = "";
-ApiKeys["pastebin"] = "";
-ApiKeys["bitlyLogin"] = "";
-ApiKeys["bitlyKey"] = "";
+ApiKeys['spellCheck'] = "";
+ApiKeys['lastFm'] = "";
+ApiKeys['translate'] = "MoBot";
+ApiKeys['pastebin'] = "";
+ApiKeys['bitlyLogin'] = "";
+ApiKeys['bitlyKey'] = "";
 var Colors = [];
-Colors["Tab"] = "#000000"; // #CCCCCC
-Colors["Background"] = "#000000"; // #CCCCCC
-Colors["Text"] = "#FFFFFF"; // #000000
-Colors["NameText"] = "#FFFFFF"; // #808080
-Colors["TabText"] = "#FFFFFF";
+Colors['Tab'] = "#000000";
+Colors['Background'] = "#000000";
+Colors['Text'] = "#FFFFFF";
+Colors['NameText'] = "#FFFFFF";
+Colors['TabText'] = "#FFFFFF";
 
 if( getValue( "BotData" ) != undefined )
 {
@@ -132,8 +131,8 @@ function initializeUserData( id )
 var overtakeCode = GM_cryptoHash( time(), "MD5" );
 overtakeCode = overtakeCode.substring( 0, 5 );
 
-document.getElementById('body').bgColor = Colors["Background"];
-document.getElementById('body').innerHTML = '<div id="fillMe" style="width: 100%;background-color:' + Colors["Background"] + ';" ></div><div id="tabs" style="height:25px;background-color:' + Colors["Tab"] + ';"></div><div id="name" style="font-size:0px;background-color:' + Colors["Background"] + ';color:' + Colors["Background"] + ';display:none;" ></div>';
+document.getElementById( "body" ).bgColor = Colors['Background'];
+document.getElementById( "body" ).innerHTML = "<div id=\"fillMe\" style=\"width: 100%;background-color:" + Colors['Background'] + ";\" ></div><div id=\"tabs\" style=\"height:25px;background-color:" + Colors['Tab'] + ";\"></div><div id=\"name\" style=\"font-size:0px;background-color:" + Colors['Background'] + ";color:" + Colors['Background'] + ";display:none;\" ></div>";
 document.title = BotData.botName;
 
 unsafeWindow.AddMess = function AddMess( tab, s )
@@ -158,18 +157,18 @@ unsafeWindow.AddMess = function AddMess( tab, s )
 	else if( tab == 0 )
 	{
 		unsafeWindow.Messages[0] = "";
-		s = '';
+		s = "";
 	}
 	if( tab == -1 ) tab = 0;
-	if( s != '' ) unsafeWindow.Messages[tab] += s + '<br />';
+	if( s != "" ) unsafeWindow.Messages[tab] += s + "<br />";
 	if( tab == unsafeWindow.CurrentTab ) unsafeWindow.SetBox( unsafeWindow.Messages[tab] );
 }
 unsafeWindow.DoMessage = function DoMessage( id, KickBan, Reason )
 {
 	var parameters = "u=" + id + "&t=" + encodeURIComponent( KickBan );
-	parameters = 'p=' + encodeURIComponent( Reason ) + '&' + parameters;
+	parameters = "p=" + encodeURIComponent( Reason ) + "&" + parameters;
 	xmlHttp2 = unsafeWindow.getHTTPObject();
-	xmlHttp2.open( 'GET', '/Post?' + parameters, true );
+	xmlHttp2.open( "GET", "/Post?" + parameters, true );
 	xmlHttp2.setRequestHeader( "Content-Type", "text/plain" );
 	xmlHttp2.setRequestHeader( "Connection", "close" );
 	xmlHttp2.send( parameters );
@@ -184,40 +183,40 @@ unsafeWindow.UserInfo = function UserInfo( node )
 	if( unsafeWindow.Users[id] == undefined )
 	{
 		unsafeWindow.Users[id] = new Array();
-		unsafeWindow.Users[id]['n'] = '' + id;
-		unsafeWindow.Users[id]['N'] = '';
+		unsafeWindow.Users[id]['n'] = "" + id;
+		unsafeWindow.Users[id]['N'] = "";
 		unsafeWindow.Users[id]['f'] = 0;
 		if( node.attributes.n ) unsafeWindow.Users[id]['n'] = node.attributes.n.value;
 		if( node.attributes.N ) unsafeWindow.Users[id]['N'] = node.attributes.N.value;
 		if( node.attributes.f ) unsafeWindow.Users[id]['f'] = parseInt( node.attributes.f.value );
-		s = '<span style="color:'+Colors["Text"]+'" >';
+		s = "<span style=\"color:" + Colors['Text'] + "\" >";
 		s += id + " ";
 		if( unsafeWindow.Users[id]['N'] ) s += "<b>" + unsafeWindow.Users[id]['N'] + "</b> ";
 		s += unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] );
-		s += '</span>';
+		s += "</span>";
 		unsafeWindow.AddMess( 1, s );
 	}
 }
 unsafeWindow.DispTabs = function DispTabs()
 {
-	var Div = document.getElementById( 'tabs' );
-	var t = '<table class="xtable"><tr>';
+	var Div = document.getElementById( "tabs" );
+	var t = "<table class=\"xtable\"><tr>";
 	for( var n in unsafeWindow.Tabs )
 	{
-		var b1 = b2 = '';
+		var b1 = b2 = "";
 		if( n == -1 ) continue;
 		if( n == unsafeWindow.CurrentTab ) 
 		{ 
-			b1 = '<B>';
-			b2= '</B>'; 
+			b1 = "<B>";
+			b2= "</B>"; 
 		} 
-		t += '<td style="background-color:' + Colors["Tab"] + ';color:' + Colors["TabText"] + '" onclick="SetTab(' + n + ')">' + b1 + unsafeWindow.Tabs[n] + b2 + '</td>';
+		t += "<td style=\"background-color:" + Colors['Tab'] + ";color:" + Colors['TabText'] + "\" onclick=\"SetTab(" + n + ")\">" + b1 + unsafeWindow.Tabs[n] + b2 + "</td>";
 	}
-	Div.innerHTML = t + '</tr></table>';
+	Div.innerHTML = t + "</tr></table>";
 }
 unsafeWindow.SetBox = function SetBox( s )
 {
-	var Div = document.getElementById( 'fillMe' );
+	var Div = document.getElementById( "fillMe" );
 	curTime = time();
 	if( curTime >= startTime + extraWait )
 	{
@@ -236,30 +235,30 @@ unsafeWindow.fillElementId = function fillElementId( url, elementId, parameters 
 		{
 			if( xmlHttp.status == 200 )
 			{
-				var nn = '';
+				var nn = "";
 				for( var n = 0; n < xmlHttp.responseXML.firstChild.childNodes.length; n++ )
 				{
 					var e = xmlHttp.responseXML.firstChild.childNodes[n];
 					nn = xmlHttp.responseXML.firstChild.childNodes[n].nodeName;
 					if( nn == "p" || nn == "z" )
 					{
-						if( e.attributes.t.value.charAt( 0 ) == '/' ) continue;
+						if( e.attributes.t.value.charAt( 0 ) == "/" ) continue;
 						var id = parseInt( e.attributes.u.value );
-						var name = '';
+						var name = "";
 						var r = id;
 						if( unsafeWindow.Users[id] == undefined ) 
 						{
 							if( nn == "z" ) unsafeWindow.UserInfo( e );
 							else continue;
 						}
-						if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + ' (' + id + ')';
-						if( unsafeWindow.Users[id]['n'] ) name = '<span title="' + r + '" style="color:' + Colors["NameText"] + '" >' + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
+						if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + " (" + id + ")";
+						if( unsafeWindow.Users[id]['n'] ) name = "<span class=\"username\" title=\"" + r + "\" style=\"color:" + Colors['NameText'] + "\" >" + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
 						if( unsafeWindow.Tabs[id] == undefined ) 
 						{
 							unsafeWindow.CreateTab( id );
 							unsafeWindow.DispTabs();
 						}
-						unsafeWindow.AddMess( id, name + ' <span style="color:' + Colors["NameText"] + '" ><b>' + e.attributes.t.value + '</b></span>' );
+						unsafeWindow.AddMess( id, name + " <span style=\"color:" + Colors['NameText'] + "\" ><b>" + e.attributes.t.value + "</b></span>" );
 					}
 					else if( nn == "m" )
 					{
@@ -269,26 +268,26 @@ unsafeWindow.fillElementId = function fillElementId( url, elementId, parameters 
 							unsafeWindow.SetTab( 0 );
 						}
 						var t = e.attributes.t.value;
-						if( t.charAt( 0 ) == '/' )
+						if( t.charAt( 0 ) == "/" )
 						{
 							var y = t.charAt( 1 );
 							var derp = t.charAt( 2 );
-							if( y != 'g' && y != 'k' && y != 'u' ) continue;
+							if( y != "g" && y != "k" && y != "u" ) continue;
 							var d = parseInt( e.attributes.d.value );
 							if( unsafeWindow.Users[d] == undefined ) continue;
-							if( y == 'g' && derp != 'm' ) t = 'I have banned ' + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] ) + ' for ' + ( parseInt( t.substr( 2 ) ) / 3600 ) + ' hours.';
-							else if( y == 'g' && derp == 'm' ) t = 'I have muted ' + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] ) + ' for ' + ( parseInt( t.substr( 3 ) ) / 3600 ) + ' hours.';
-							else if( y == 'k' ) t = 'I have kicked ' + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] );
-							else if( y == 'u' ) t = 'I have unbanned ' + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] );
+							if( y == "g" && derp != "m" ) t = "I have banned " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] ) + " for " + ( parseInt( t.substr( 2 ) ) / 3600 ) + " hours.";
+							else if( y == "g" && derp == "m" ) t = "I have muted " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] ) + " for " + ( parseInt( t.substr( 3 ) ) / 3600 ) + " hours.";
+							else if( y == "k" ) t = "I have kicked " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] );
+							else if( y == "u" ) t = "I have unbanned " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] );
 							else continue;
 						}
 						var id = parseInt( e.attributes.u.value );
 						if( unsafeWindow.Users[id] == undefined ) continue;
-						var name = '';
+						var name = "";
 						var r = id;
-						if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + ' (' + id + ')';
-						if( unsafeWindow.Users[id]['n'] ) name = '<span title="' + r + '" style="color:' + Colors["NameText"] + '" >' + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
-						unsafeWindow.AddMess( 0, name + ' <span style="color:' + Colors["NameText"] + '" ><b>' + t + '</b></span>');
+						if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + " (" + id + ")";
+						if( unsafeWindow.Users[id]['n'] ) name = "<span class=\"username\" title=\"" + r + "\" style=\"color:" + Colors['NameText'] + "\" >" + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
+						unsafeWindow.AddMess( 0, name + " <span style=\"color:" + Colors['NameText'] + "\" ><b>" + t + "</b></span>" );
 					}
 					else if( nn == "l" )
 					{
@@ -303,31 +302,31 @@ unsafeWindow.fillElementId = function fillElementId( url, elementId, parameters 
 					}
 					else if( nn == "gn" )
 					{
-						document.getElementById( 'name' ).innerHTML = "&nbsp;" + e.attributes.n.value;
+						document.getElementById( "name" ).innerHTML = "&nbsp;" + e.attributes.n.value;
 					}
 					else if( nn == "v" )
 					{
 						var e = parseInt( e.attributes.e.value );
 						if( e == 1 )
 						{
-							unsafeWindow.AddMess( unsafeWindow.CurrentTab, '<span style="color:' + Colors["Text"] + '" ><strong>You have been logged out!</strong></span>' );
+							unsafeWindow.AddMess( unsafeWindow.CurrentTab, "<span style=\"color:" + Colors['Text'] + "\" ><strong>You have been logged out!</strong></span>" );
 							reboot();
 							nn = "logout";
 						} 
 						else if( e == 8 )
 						{
-							unsafeWindow.AddMess( unsafeWindow.CurrentTab, '<span style="color:' + Colors["Text"] + '" ><strong>Bad password!</strong></span>' );
+							unsafeWindow.AddMess( unsafeWindow.CurrentTab, "<span style=\"color:" + Colors['Text'] + "\" ><strong>Bad password!</strong></span>" );
 							nn = "logout";
 						}
 						else if( e == 6 )
 						{
-							unsafeWindow.AddMess( unsafeWindow.CurrentTab, '<span style="color:' + Colors["Text"] + '" ><strong>Bad user name!</strong></span>' );
+							unsafeWindow.AddMess( unsafeWindow.CurrentTab, "<span style=\"color:" + Colors['Text'] + "\" ><strong>Bad user name!</strong></span>" );
 							reboot( true );
 							nn = "logout";
 						}		
 						else				
 						{
-							unsafeWindow.AddMess( unsafeWindow.CurrentTab, '<span style="color:' + Colors["Text"] + '" ><strong>Error Z' + e + '</strong></span>' );
+							unsafeWindow.AddMess( unsafeWindow.CurrentTab, "<span style=\"color:" + Colors['Text'] + "\" ><strong>Error Z" + e + "</strong></span>" );
 							reboot();
 							nn = "logout";
 						}		
@@ -335,24 +334,24 @@ unsafeWindow.fillElementId = function fillElementId( url, elementId, parameters 
 					}
 					else if( nn == "logout" )
 					{
-						unsafeWindow.AddMess(unsafeWindow.CurrentTab, '<span style="color:' + Colors["Text"] + '" ><strong>You have been logged out!</strong></span>' );
+						unsafeWindow.AddMess(unsafeWindow.CurrentTab, "<span style=\"color:" + Colors['Text'] + "\" ><strong>You have been logged out!</strong></span>" );
 						reboot();
 						break;
 					}
 				}
 				xmlHttp = null;
-				if( nn != "logout" ) unsafeWindow.fillElementId( '/Get', 'fillMe', 'say=hi' );
+				if( nn != "logout" ) unsafeWindow.fillElementId( "/Get", "fillMe", "say=hi" );
 			}
 		}
 	};
 	var ourDate = new Date();
-	xmlHttp.open( 'GET', url + "?" + ourDate.getTime(), true );
+	xmlHttp.open( "GET", url + "?" + ourDate.getTime(), true );
 	xmlHttp.setRequestHeader( "Content-Type", "application/x-www-form-urlencoded" );
 	xmlHttp.setRequestHeader( "Content-Length", parameters.length );
 	xmlHttp.send( parameters );
 }
 unsafeWindow.SetTab( 0 );
-setTimeout( function() { unsafeWindow.AddMess( 0, '<span style="color:'+Colors["Text"]+'" ><strong>Welcome to Mo-Bot, created by MW!<br />Overtake Code: '+overtakeCode+'</strong></span>' ); }, extraWait * 999 );
+setTimeout( function() { unsafeWindow.AddMess( 0, "<span style=\"color:" + Colors['Text'] + "\" ><strong>Welcome to Mo-Bot, created by MW!<br />Overtake Code: " + overtakeCode + "</strong></span>" ); }, extraWait * 999 );
 
 function handleCommand( cmd, arg, id )
 {
@@ -370,15 +369,15 @@ function handleCommand( cmd, arg, id )
 		switch( cmd )
 		{
 			case "die": die();	break;
-			case "resurrect": resurrect();	break;
+			case "resurrect": resurrect(); break;
 		}
 	}
 	if( botDead ) return;
 	switch( cmd )
 	{
-		case "say": respond(arg,id);	break;
-		case "overtake": overtake(args[0],id);	break;
-		case "fc": viewFC(args[0],id);	break;
+		case "say": respond( arg, id ); break;
+		case "overtake": overtake( args[0], id ); break;
+		case "fc": viewFC( args[0], id ); break;
 	}
 	if( isBotdev || isDev || isSupport || isTrusted )
 	{
@@ -386,106 +385,106 @@ function handleCommand( cmd, arg, id )
 		{
 			case "8":
 			case "8b":
-			case "8ball": eightBall(id);	break;
-			case "acc": acc(args[0]);	break;
-			case "saypc": sendPC(arg,args[0]);	break;
-			case "regname": regname(args[0]);	break;
-			case "id": getId(args[0]);	break;
-			case "fact": fact();	break;
-			case "google": google(arg);	break;
-			case "youtube": youtube(arg);	break;
-			case "addfc": addFC(args[0],args[1],id);	break;
+			case "8ball": eightBall( id ); break;
+			case "acc": acc( args[0] ); break;
+			case "saypc": sendPC( arg, args[0] ); break;
+			case "regname": regname( args[0] ); break;
+			case "id": getId( args[0] ); break;
+			case "fact": fact(); break;
+			case "google": google( arg ); break;
+			case "youtube": youtube( arg ); break;
+			case "addfc": addFC( args[0], args[1], id ); break;
 			case "remfc":
-			case "removefc": removeFC(args[0],id);	break;
-			case "googl": GooGl(args[0]);	break;
-			case "bitly": bitly(args[0]);	break;
-			case "define": dictionary(arg);	break;
+			case "removefc": removeFC( args[0], id ); break;
+			case "googl": GooGl( args[0] ); break;
+			case "bitly": bitly( args[0] ); break;
+			case "define": dictionary( arg ); break;
 			case "wotd":
-			case "wordoftheday": wordOfTheDay();	break;
-			case "urban": urban(arg,false);	break;
-			case "rurban": urban("",true);	break;
-			case "md5": crypto(arg,"MD5");	break;
-			case "sha1": crypto(arg,"SHA1");	break;
-			case "sha256": crypto(arg,"SHA256");	break;
-			case "sha384": crypto(arg,"SHA384");	break;
-			case "sha512": crypto(arg,"SHA512");	break;
-			case "md2": crypto(arg,"MD2");	break;
-			case "twitter": twitter(args[0]);	break;
-			case "power": powerimage(args[0]);	break;
-			case "tinypaste": tinypaste(arg);	break;
-			case "pastebin": pastebin(arg);	break;
+			case "wordoftheday": wordOfTheDay(); break;
+			case "urban": urban( arg, false ); break;
+			case "rurban": urban( "", true ); break;
+			case "md5": crypto( arg, "MD5" ); break;
+			case "sha1": crypto( arg, "SHA1" ); break;
+			case "sha256": crypto( arg, "SHA256" ); break;
+			case "sha384": crypto( arg, "SHA384" ); break;
+			case "sha512": crypto( arg, "SHA512" ); break;
+			case "md2": crypto( arg, "MD2" ); break;
+			case "twitter": twitter( args[0] ); break;
+			case "power": powerimage( args[0] ); break;
+			case "tinypaste": tinypaste( arg ); break;
+			case "pastebin": pastebin( arg ); break;
 			case "pastekde":
-			case "kdepaste": kdepaste(arg);	break;
-			case "danish": googleTranslate(arg,"da");	break;
-			case "dutch": googleTranslate(arg,"nl");	break;
-			case "english": googleTranslate(arg,"en");	break;
-			case "french": googleTranslate(arg,"fr");	break;
-			case "german": googleTranslate(arg,"de");	break;
-			case "italian": googleTranslate(arg,"it");	break;
-			case "polish": googleTranslate(arg,"pl");	break;
-			case "portuguese": googleTranslate(arg,"pt");	break;
-			case "spanish": googleTranslate(arg,"es");	break;
-			case "swedish": googleTranslate(arg,"sv");	break;
-			case "artist": lastFm(arg,"artist");	break;
-			case "chart": lastFm(arg,"chart");	break;
-			case "lastfm": lastFm(arg,"user");	break;
-			case "factcore": factCore();	break;
+			case "kdepaste": kdepaste( arg ); break;
+			case "danish": googleTranslate( arg, "da" ); break;
+			case "dutch": googleTranslate( arg, "nl" ); break;
+			case "english": googleTranslate( arg, "en" ); break;
+			case "french": googleTranslate( arg, "fr" ); break;
+			case "german": googleTranslate( arg, "de" ); break;
+			case "italian": googleTranslate( arg, "it" ); break;
+			case "polish": googleTranslate( arg, "pl" ); break;
+			case "portuguese": googleTranslate( arg, "pt" ); break;
+			case "spanish": googleTranslate( arg, "es" ); break;
+			case "swedish": googleTranslate( arg, "sv" ); break;
+			case "artist": lastFm( arg, "artist" ); break;
+			case "chart": lastFm( arg, "chart" ); break;
+			case "lastfm": lastFm( arg, "user" ); break;
+			case "factcore": factCore(); break;
 			case "s":
-			case "scramble": scramble(args[0],id);	break;
+			case "scramble": scramble( args[0], id ); break;
 			case "spell":
 			case "spelling":
-			case "spellcheck": spellCheck(args[0]);	break;
+			case "spellcheck": spellCheck( args[0] ); break;
 			case "w":
-			case "weather": googleWeather(arg);	break;
+			case "weather": googleWeather( arg ); break;
 			case "fml":
-			case "fmylife": fMyLife();	break;
+			case "fmylife": fMyLife(); break;
 			case "horo":
-			case "horoscope": horoScope(args[0]);	break;
+			case "horoscope": horoScope( args[0] ); break;
 			case "stock":
-			case "stocks": googleStocks(args[0]);	break;
+			case "stocks": googleStocks( args[0] ); break;
 			case "runtime":
-			case "uptime": upTime();	break;
-			case "imdb": iMDBsearch(arg);	break;
+			case "uptime": upTime(); break;
+			case "imdb": iMDBsearch( arg ); break;
 		}
 	}
 	if( isBotdev || isDev || isSupport )
 	{
 		switch( cmd )
 		{
-			case "kick": kick(args[0],"Kicked by "+id);	break;
-			case "zap": kick(args[0],"Kicked by "+id+" #1#1");	break;
-			case "ranks": ranks(args[0],args[1],id);	break;
-			case "chatlog": chatLog();	break;
+			case "kick": kick( args[0], "Kicked by " + id ); break;
+			case "zap": kick( args[0], "Kicked by " + id + " #1#1" ); break;
+			case "ranks": ranks( args[0], args[1], id ); break;
+			case "chatlog": chatLog(); break;
 		}
 	}
 	if( isBotdev || isDev )
 	{
 		switch( cmd )
 		{
-			case "ban": ban(args[0],"Banned by "+id,args[1]);	break;
-			case "unban": unban(args[0]);	break;
-			case "mute": mute(args[0],"Muted by "+id,args[1]);	break;
-			case "cc": cc(args[0]);	break;
-			case "hush": hush(args[0],args[1]);	break;
-			case "p": p();	break;
-			case "scroll": scroll(arg);	break;
-			case "away": away();	break;
+			case "ban": ban( args[0], "Banned by " + id, args[1] ); break;
+			case "unban": unban( args[0] ); break;
+			case "mute": mute( args[0], "Muted by " + id, args[1] ); break;
+			case "cc": cc( args[0] ); break;
+			case "hush": hush( args[0], args[1] ); break;
+			case "p": p(); break;
+			case "scroll": scroll( arg ); break;
+			case "away": away(); break;
 		}
 	}
 	if( isBotdev )
 	{
 		switch( cmd )
 		{
-			case "add": add(args[0],args[1]);	break;
-			case "remove": remove(args[0]);	break;
-			case "name": bawtName(args[0]);	break;
+			case "add": add( args[0], args[1] ); break;
+			case "remove": remove( args[0] ); break;
+			case "name": bawtName( args[0] ); break;
 			case "reboot":
-			case "restart": reboot();	break;
+			case "restart": reboot(); break;
 			case "currentchat":
-			case "chatname": chatName(args[0]);	break;
-			case "setnick": setNick(args[0],id,args[1]);	break;
-			case "getnick": getNick(id,args[0]);	break;
-			case "clearfc": clearFC(id);	break;
+			case "chatname": chatName( args[0] ); break;
+			case "setnick": setNick( args[0], id, args[1] ); break;
+			case "getnick": getNick( id, args[0] ); break;
+			case "clearfc": clearFC( id ); break;
 		}
 	}
 }
@@ -496,40 +495,40 @@ function chatLog()
 {
 	if( unsafeWindow.CurrentTab == 0 )
 	{
-		var messages = document.getElementsByTagName( 'b' );
-		var users = document.getElementsByClassName( 'username' );
+		var messages = document.getElementsByTagName( "b" );
+		var users = document.getElementsByClassName( "username" );
 		var pastetext = "";
 		for( var i in users )
 		{
-			pastetext += users[i].innerHTML + messages[i].innerHTML + '%0A';
+			pastetext += users[i].innerHTML + messages[i].innerHTML + "%0A";
 		}
 		pastetext = pastetext.replace( /&nbsp;/gi, " " );
-		tinypaste( pastetext ); // does tinypaste because only tinypaste works correctly with '%0A' as linebreaks
+		tinypaste( pastetext ); // does tinypaste because only tinypaste works correctly with "%0A" as linebreaks
 	}
 	else
 	{
-		sendMessage( 'Bot is not in main chat tab!' );
+		sendMessage( "Bot is not in main chat tab!" );
 	}
 }
 function iMDBsearch( query )
 {
 	query = query.replace(/ /g,"+");
-	getPage( 'http://m.imdb.com/find?q=' + query,
+	getPage( "http://m.imdb.com/find?q=" + query,
 	function( doc )
 	{
 		var results = doc.getElementsByClassName( "title" );
-		var result1 = results[0].innerHTML.between( ' href="', '" ' );
-		result1 = 'http://www.imdb.com' + result1;
-		var result1title = results[0].innerHTML.between( '">', '</a>' ) + results[0].innerHTML.between( '</a> ', '\n' );
-		setTimeout( function() { sendMessage( result1title + ' - ' + result1 ); }, 1000 );
-		var result2 = results[1].innerHTML.between( ' href="', '" ' );
-		result2 = 'http://www.imdb.com' + result2;
-		var result2title = results[1].innerHTML.between( '">', '</a>' ) + results[1].innerHTML.between( '</a> ', '\n' );
-		setTimeout( function() { sendMessage( result2title + ' - ' + result2 ); }, 2000 );
-		var result3 = results[2].innerHTML.between( ' href="', '" ' );
-		result3 = 'http://www.imdb.com' + result3;
-		var result3title = results[2].innerHTML.between( '">', '</a>' ) + results[2].innerHTML.between( '</a> ', '\n' );
-		setTimeout( function() { sendMessage( result3title + ' - ' + result3 ); }, 3000 );
+		var result1 = results[0].innerHTML.between( " href=\"", "\" " );
+		result1 = "http://www.imdb.com" + result1;
+		var result1title = results[0].innerHTML.between( "\">", "</a>" ) + results[0].innerHTML.between( "</a> ", "\n" );
+		setTimeout( function() { sendMessage( result1title + " - " + result1 ); }, 1000 );
+		var result2 = results[1].innerHTML.between( " href=\"", "\" " );
+		result2 = "http://www.imdb.com" + result2;
+		var result2title = results[1].innerHTML.between( "\">", "</a>" ) + results[1].innerHTML.between( "</a> ", "\n" );
+		setTimeout( function() { sendMessage( result2title + " - " + result2 ); }, 2000 );
+		var result3 = results[2].innerHTML.between( " href=\"", "\" " );
+		result3 = "http://www.imdb.com" + result3;
+		var result3title = results[2].innerHTML.between( "\">", "</a>" ) + results[2].innerHTML.between( "</a> ", "\n" );
+		setTimeout( function() { sendMessage( result3title + " - " + result3 ); }, 3000 );
 	}
 	);
 }
@@ -556,7 +555,7 @@ function upTime()
 }
 function googleStocks( query )
 {
-	getPage( 'http://www.google.com/ig/api?stock=' + query,
+	getPage( "http://www.google.com/ig/api?stock=" + query,
 	function( doc )
 	{
 		if( doc.getElementsByTagName( "company" )[0] != undefined && doc.getElementsByTagName( "company" )[0].getAttribute( "data" ) != "" )
@@ -565,11 +564,11 @@ function googleStocks( query )
 			var current = doc.getElementsByTagName( "last" )[0].getAttribute( "data" );
 			var change = doc.getElementsByTagName( "change" )[0].getAttribute( "data" );
 			var percchange = doc.getElementsByTagName( "perc_change" )[0].getAttribute( "data" );
-			setTimeout( function() { sendMessage( company + ' ' + current + ' ' + change + '(' + percchange + '%)' ); }, 1000 );
+			setTimeout( function() { sendMessage( company + " " + current + " " + change + "(" + percchange + "%)" ); }, 1000 );
 		}
 		else
 		{
-			setTimeout( function() { sendMessage( 'Stock not found.' ); }, 1000 );
+			setTimeout( function() { sendMessage( "Stock not found." ); }, 1000 );
 		}
 	}
 	);
@@ -579,7 +578,7 @@ function horoScope( sign )
 	sign = sign.toLowerCase();
 	if( sign != "aries" && sign != "taurus" && sign != "gemini" && sign != "cancer" && sign != "leo" && sign != "virgo" && sign != "libra" && sign != "scorpio" && sign != "sagittarius" && sign != "capricorn" && sign != "aquarius" && sign != "pisces" )
 	{
-		setTimeout( function() { sendMessage( 'Valid Signs: aquarius, aries, cancer, capricorn, gemini, leo, libra, pisces, sagittarius, scorpio, taurus, virgo.' ); }, 1000 );
+		setTimeout( function() { sendMessage( "Valid Signs: aquarius, aries, cancer, capricorn, gemini, leo, libra, pisces, sagittarius, scorpio, taurus, virgo." ); }, 1000 );
 	}
 	else
 	{
@@ -589,37 +588,37 @@ function horoScope( sign )
 		var day = d.getUTCDate().toString();
 		switch( month )
 		{
-			case "0": month = "01";	break;
-			case "1": month = "02";	break;
-			case "2": month = "03";	break;
-			case "3": month = "04";	break;
-			case "4": month = "05";	break;
-			case "5": month = "06";	break;
-			case "6": month = "07";	break;
-			case "7": month = "08";	break;
-			case "8": month = "09";	break;
-			case "9": month = "10";	break;
-			case "10": month = "11";	break;
-			case "11": month = "12";	break;
+			case "0": month = "01"; break;
+			case "1": month = "02"; break;
+			case "2": month = "03"; break;
+			case "3": month = "04"; break;
+			case "4": month = "05"; break;
+			case "5": month = "06"; break;
+			case "6": month = "07"; break;
+			case "7": month = "08"; break;
+			case "8": month = "09"; break;
+			case "9": month = "10"; break;
+			case "10": month = "11"; break;
+			case "11": month = "12"; break;
 		}
 		switch( day )
 		{
-			case "1": day = "01";	break;
-			case "2": day = "02";	break;
-			case "3": day = "03";	break;
-			case "4": day = "04";	break;
-			case "5": day = "05";	break;
-			case "6": day = "06";	break;
-			case "7": day = "07";	break;
-			case "8": day = "08";	break;
-			case "9": day = "09";	break;
+			case "1": day = "01"; break;
+			case "2": day = "02"; break;
+			case "3": day = "03"; break;
+			case "4": day = "04"; break;
+			case "5": day = "05"; break;
+			case "6": day = "06"; break;
+			case "7": day = "07"; break;
+			case "8": day = "08"; break;
+			case "9": day = "09"; break;
 			default: break;
 		}
-		getPage( 'http://m.astrology.com/inf/infomo;?site=astrology.com&view=horoscope_details&feed:a=astrolist&feed:c=astrolist&feed:i=64A08E5F1E6C39FAEB90108C430EB120&feed=dailyoverview&tdate=' + year + month + day + '&astsign=' + sign.charAt( 0 ).toUpperCase() + sign.substring( 1 ),
+		getPage( "http://m.astrology.com/inf/infomo;?site=astrology.com&view=horoscope_details&feed:a=astrolist&feed:c=astrolist&feed:i=64A08E5F1E6C39FAEB90108C430EB120&feed=dailyoverview&tdate=" + year + month + day + "&astsign=" + sign.charAt( 0 ).toUpperCase() + sign.substring( 1 ),
 		function( doc )
 		{
 			var horoscope = doc.getElementsByClassName( "list" )[0].innerHTML;
-			var breakLocation = horoscope.indexOf( 'br' );
+			var breakLocation = horoscope.indexOf( "br" );
 			breakLocation += 3;
 			horoscope = horoscope.substring( breakLocation );
 			setTimeout( function() { sendMessage( horoscope ); }, 2500 );
@@ -629,7 +628,7 @@ function horoScope( sign )
 }
 function fMyLife()
 {
-	getPage( 'http://m.fmylife.com/',
+	getPage( "http://m.fmylife.com/",
 	function( doc )
 	{
 		var fmls = doc.getElementsByClassName( "text" );
@@ -641,13 +640,13 @@ function fMyLife()
 			offset++;
 		}
 		if( story.length <= 180 ) setTimeout( function() { sendMessage( story ); }, 2100 );
-		else setTimeout( function() { sendMessage( 'Stories too long. FML' ); }, 1000 );
+		else setTimeout( function() { sendMessage( "Stories too long. FML" ); }, 1000 );
 	}
 	);
 }
 function googleWeather( query )
 {
-	getPage( 'http://www.google.com/ig/api?weather=' + query,
+	getPage( "http://www.google.com/ig/api?weather=" + query,
 	function( doc )
 	{
 		if( doc.getElementsByTagName( "condition" )[0] != undefined )
@@ -657,28 +656,28 @@ function googleWeather( query )
 			var c = doc.getElementsByTagName( "temp_c" )[0].getAttribute( "data" );
 			var humidity = doc.getElementsByTagName( "humidity" )[0].getAttribute( "data" );
 			var wind = doc.getElementsByTagName( "wind_condition" )[0].getAttribute( "data" );
-			var windspeedmph = wind.between( 'at ', ' mph' );
+			var windspeedmph = wind.between( "at ", " mph" );
 			var windspeedkph = Math.round( windspeedmph * 1.609344 );
-			setTimeout( function() { sendMessage( condition + ', ' + f + 'F(' + c + 'C), ' + humidity + ', ' + wind + '(' + windspeedkph + ' kph).' ); }, 1000 );
+			setTimeout( function() { sendMessage( condition + ", " + f + "F(" + c + "C), " + humidity + ", " + wind + "(" + windspeedkph + " kph)." ); }, 1000 );
 		}
 		else
 		{
-			setTimeout( function() { sendMessage( 'Weather not found.' ); }, 1000 );
+			setTimeout( function() { sendMessage( "Weather not found." ); }, 1000 );
 		}
 	}
 	);
 }
 function spellCheck( query )
 {
-	getPage( 'http://svc.webservius.com/v1/spellcheck/spellcheck/?wsvKey=' + ApiKeys["spellCheck"] + '&cmd=check_spelling&version=1.0&format=xml&ignore_domain_names=1&text=' + encodeURI( query ),
+	getPage( "http://svc.webservius.com/v1/spellcheck/spellcheck/?wsvKey=" + ApiKeys['spellCheck'] + "&cmd=check_spelling&version=1.0&format=xml&ignore_domain_names=1&text=" + encodeURI( query ),
 	function( doc )
 	{
-		var suggestions = doc.getElementsByTagName('suggestion');
-		if( suggestions != undefined && suggestions[0] != undefined && suggestions[1] == undefined ) setTimeout( function() { sendMessage( 'Did you mean: '+suggestions[0].innerHTML+' ?' ); }, 500 );
-		else if( suggestions != undefined && suggestions[0] != undefined && suggestions[1] != undefined && suggestions[2] == undefined ) setTimeout( function() { sendMessage( 'Did you mean: ' + suggestions[0].innerHTML + ', ' + suggestions[1].innerHTML + ' ?' ); }, 500 );
-		else if( suggestions != undefined && suggestions[0] != undefined && suggestions[1] != undefined && suggestions[2] != undefined && suggestions[3] == undefined ) setTimeout( function() { sendMessage( 'Did you mean: ' + suggestions[0].innerHTML + ', ' + suggestions[1].innerHTML + ', ' + suggestions[2].innerHTML + ' ?' ); }, 500 );
-		else if( suggestions != undefined && suggestions[0] != undefined && suggestions[1] != undefined && suggestions[2] != undefined && suggestions[3] != undefined ) setTimeout( function() { sendMessage( 'Did you mean: ' + suggestions[0].innerHTML + ', ' + suggestions[1].innerHTML + ', ' + suggestions[2].innerHTML + ', ' + suggestions[3].innerHTML + ' ?' ); }, 500 );
-		else setTimeout( function() { sendMessage( 'Nothing found.' ); }, 500 );
+		var suggestions = doc.getElementsByTagName( "suggestion" );
+		if( suggestions != undefined && suggestions[0] != undefined && suggestions[1] == undefined ) setTimeout( function() { sendMessage( "Did you mean: " + suggestions[0].innerHTML + " ?" ); }, 500 );
+		else if( suggestions != undefined && suggestions[0] != undefined && suggestions[1] != undefined && suggestions[2] == undefined ) setTimeout( function() { sendMessage( "Did you mean: " + suggestions[0].innerHTML + ", " + suggestions[1].innerHTML + " ?" ); }, 500 );
+		else if( suggestions != undefined && suggestions[0] != undefined && suggestions[1] != undefined && suggestions[2] != undefined && suggestions[3] == undefined ) setTimeout( function() { sendMessage( "Did you mean: " + suggestions[0].innerHTML + ", " + suggestions[1].innerHTML + ", " + suggestions[2].innerHTML + " ?" ); }, 500 );
+		else if( suggestions != undefined && suggestions[0] != undefined && suggestions[1] != undefined && suggestions[2] != undefined && suggestions[3] != undefined ) setTimeout( function() { sendMessage( "Did you mean: " + suggestions[0].innerHTML + ", " + suggestions[1].innerHTML + ", " + suggestions[2].innerHTML + ", " + suggestions[3].innerHTML + " ?" ); }, 500 );
+		else setTimeout( function() { sendMessage( "Nothing found." ); }, 500 );
 	}
 	);
 }
@@ -687,55 +686,45 @@ function scramble( argOrWord, id )
 	if( argOrWord == "start" && !scrambling )
 	{
 		scrambling = true;
-		getPage( 'http://watchout4snakes.com/CreativityTools/RandomWord/RandomWord.aspx',
+		getPage( "http://watchout4snakes.com/CreativityTools/RandomWord/RandomWord.aspx",
 		function( doc )
 		{
 			scrambleAnswer = doc.getElementsByClassName( "randomWord" )[0].innerHTML;
 			scrambleWord = wordScramble( scrambleAnswer );
-			setTimeout( function() { sendMessage( 'Scrambled Word: ' + scrambleWord ); }, 500 );
+			setTimeout( function() { sendMessage( "Scrambled Word: " + scrambleWord ); }, 500 );
 		}
 		);
 	}
 	else if( argOrWord == "end" && scrambling && scrambleAnswer != "end" )
 	{
 		scrambling = false;
-		setTimeout( function() { sendMessage( 'Game ended. Correct Answer: ' + scrambleAnswer ); scrambleAnswer = ""; scrambleWord = ""; }, 500 );
+		setTimeout( function() { sendMessage( "Game ended. Correct Answer: " + scrambleAnswer ); scrambleAnswer = ""; scrambleWord = ""; }, 500 );
 	}
 	else if( argOrWord == scrambleAnswer && scrambling )
 	{
 		scrambling = false;
-		setTimeout( function() { sendMessage( 'Congratulations! Correct Answer: ' + scrambleAnswer ); scrambleAnswer = ""; scrambleWord = ""; }, 500 );
+		setTimeout( function() { sendMessage( "Congratulations! Correct Answer: " + scrambleAnswer ); scrambleAnswer = ""; scrambleWord = ""; }, 500 );
 	}
-	else if( argOrWord == "solution" && scrambling && ( isSubStr( BotData.botdevs, id ) || isSubStr( BotData.devs, id ) ) ) sendPC( 'Scramble Solution: ' + scrambleAnswer, id );
-}
-function wordScramble( word )
-{
-	var originalWord = word;
-	word = word.split( "" );
-	for( var j, x, i = word.length; i; j = parseInt( Math.random() * i ), x = word[--i], word[i] = word[j], word[j] = x );
-	word = word.join();
-	word = word.replace( /,/g, "" );
-	if( word == originalWord ) word = wordScramble( word );
-	return word;
+	else if( argOrWord == "solution" && scrambling && ( isSubStr( BotData.botdevs, id ) || isSubStr( BotData.devs, id ) ) ) sendPC( "Scramble Solution: " + scrambleAnswer, id );
 }
 function dictionary( query )
 {
-	getPage( 'http://m.dictionary.com/d/?q=' + query,
+	getPage( "http://m.dictionary.com/d/?q=" + query,
 	function( doc )
 	{
 		var name = doc.getElementsByTagName( "meta" )[1].name;
-		if( name == undefined || name != "description" ) setTimeout( function() { sendMessage( query + ' not found.' ); }, 750 );
+		if( name == undefined || name != "description" ) setTimeout( function() { sendMessage( query + " not found." ); }, 750 );
 		else
 		{
 			var definition = doc.getElementsByTagName( "meta" )[1].content;
-			setTimeout( function() { sendMessage( query + ' - ' + definition ); }, 750 );
+			setTimeout( function() { sendMessage( query + " - " + definition ); }, 750 );
 		}
 	}
 	);
 }
 function wordOfTheDay()
 {
-	getPage( 'http://m.dictionary.com/',
+	getPage( "http://m.dictionary.com/",
 	function( doc )
 	{
 		var word = doc.getElementsByClassName( "subheader currentword nounderline" )[0].innerHTML;
@@ -752,21 +741,21 @@ function lastFm( query, mode )
 {
 	if( mode == "artist" )
 	{
-		getPage( 'http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=' + query + '&api_key=' + ApiKeys["lastFm"],
+		getPage( "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=" + query + "&api_key=" + ApiKeys['lastFm'],
 		function( doc )
 		{
 			var artist = doc.getElementsByTagName( "url" );
 			setTimeout( function() { sendMessage( artist[0].innerHTML ); }, 500 );
 		}
 		);
-		getPage( 'http://ws.audioscrobbler.com/2.0/?method=artist.gettopalbums&artist=' + query + '&api_key=' + ApiKeys["lastFm"] + '&limit=2',
+		getPage( "http://ws.audioscrobbler.com/2.0/?method=artist.gettopalbums&artist=" + query + "&api_key=" + ApiKeys['lastFm'] + "&limit=2",
 		function( doc )
 		{
 			var album = doc.getElementsByTagName( "url" );
 			setTimeout( function() { sendMessage( album[0].innerHTML ); }, 1150 );
 		}
 		);
-		getPage( 'http://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&artist=' + query + '&api_key=' + ApiKeys["lastFm"] + '&limit=2',
+		getPage( "http://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&artist=" + query + "&api_key=" + ApiKeys['lastFm'] + "&limit=2",
 		function( doc )
 		{
 			var song = doc.getElementsByTagName( "url" );
@@ -779,74 +768,74 @@ function lastFm( query, mode )
 		query = query.toLowerCase();
 		if( query == "artist" || query == "artists" )
 		{
-			getPage( 'http://ws.audioscrobbler.com/2.0/?method=chart.gettopartists&api_key=' + ApiKeys["lastFm"] + '&limit=5',
+			getPage( "http://ws.audioscrobbler.com/2.0/?method=chart.gettopartists&api_key=" + ApiKeys['lastFm'] + "&limit=5",
 			function( doc )
 			{
 				var artists = doc.getElementsByTagName( "url" );
-				setTimeout( function() { sendMessage( '1. ' + artists[0].innerHTML ); }, 800 );
-				setTimeout( function() { sendMessage( '2. ' + artists[2].innerHTML ); }, 1600 );
-				setTimeout( function() { sendMessage( '3. ' + artists[4].innerHTML ); }, 2400 );
+				setTimeout( function() { sendMessage( "1. " + artists[0].innerHTML ); }, 800 );
+				setTimeout( function() { sendMessage( "2. " + artists[2].innerHTML ); }, 1600 );
+				setTimeout( function() { sendMessage( "3. " + artists[4].innerHTML ); }, 2400 );
 			}
 			);
 		}
 		else if( query == "song" || query == "songs" )
 		{
-			getPage( 'http://ws.audioscrobbler.com/2.0/?method=chart.gettoptracks&api_key=' + ApiKeys["lastFm"] + '&limit=5',
+			getPage( "http://ws.audioscrobbler.com/2.0/?method=chart.gettoptracks&api_key=" + ApiKeys['lastFm'] + "&limit=5",
 			function( doc )
 			{
 				var songs = doc.getElementsByTagName( "url" );
-				setTimeout( function() { sendMessage( '1. ' + songs[0].innerHTML ); }, 800 );
-				setTimeout( function() { sendMessage( '2. ' + songs[2].innerHTML ); }, 1600 );
-				setTimeout( function() { sendMessage( '3. ' + songs[4].innerHTML ); }, 2400 );
+				setTimeout( function() { sendMessage( "1. " + songs[0].innerHTML ); }, 800 );
+				setTimeout( function() { sendMessage( "2. " + songs[2].innerHTML ); }, 1600 );
+				setTimeout( function() { sendMessage( "3. " + songs[4].innerHTML ); }, 2400 );
 			}
 			);
 		}
 	}
 	else if( mode == "user" )
 	{
-		getPage( 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=' + query + '&api_key=' + ApiKeys["lastFm"] + '&limit=5',
+		getPage( "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=" + query + "&api_key=" + ApiKeys['lastFm'] + "&limit=5",
 		function( doc )
 		{
 			var songs = doc.getElementsByTagName( "url" );
-			setTimeout( function() { sendMessage( '1. ' + songs[0].innerHTML ); }, 500 );
-			setTimeout( function() { sendMessage( '2. ' + songs[1].innerHTML ); }, 1150 );
-			setTimeout( function() { sendMessage( '3. ' + songs[2].innerHTML ); }, 1800 );
+			setTimeout( function() { sendMessage( "1. " + songs[0].innerHTML ); }, 500 );
+			setTimeout( function() { sendMessage( "2. " + songs[1].innerHTML ); }, 1150 );
+			setTimeout( function() { sendMessage( "3. " + songs[2].innerHTML ); }, 1800 );
 		}
 		);
 	}
 }
 function googleTranslate( text, language )
 {
-	getPage( 'http://i1.xat.com/web_gear/chat/translate1.php?key=' + ApiKeys["translate"] + '&q=' + text + '&target=' + language,
+	getPage( "http://i1.xat.com/web_gear/chat/translate1.php?key=" + ApiKeys['translate'] + "&q=" + text + "&target=" + language,
 	function( doc )
 	{
-		var txt = doc.getElementsByTagName( 'html' )[0].innerHTML;
+		var txt = doc.getElementsByTagName( "html" )[0].innerHTML;
 		var translated = txt.between( "\"translatedText\": \"", "\"," );
 		sendMessage( translated );
 	}
 	);
 }
-function kdepaste( pastetext ) // Uses 'POST' so getPage isn't going to work, plus it has weird arguments and st00f
+function kdepaste( pastetext ) // Uses "POST" so getPage isn't going to work, plus it has weird arguments and st00f
 {
 	setTimeout( function()
 	{
 		GM_xmlhttpRequest(
 		{
-			method: 'POST',
+			method: "POST",
 			url: "http://paste.kde.org/",
 			headers: { "Content-Type" : "application/x-www-form-urlencoded" },
 			data: "paste_lang=text&api_submit=1&mode=xml&paste_data=" + encodeURIComponent( pastetext ),
 			onload: function( responseDetails )
 			{
 				var dt = document.implementation.createDocumentType( "html", "-//W3C//DTD HTML 4.01 Transitional//EN", "http://www.w3.org/TR/html4/loose.dtd" ),
-				doc = document.implementation.createDocument( '', '', dt ),
-				html = doc.createElement( 'html' );
+				doc = document.implementation.createDocument( "", "", dt ),
+				html = doc.createElement( "html" );
 				html.innerHTML = responseDetails.responseText;
 				doc.appendChild( html );
 				var pasteid = doc.getElementsByTagName( "id" );
 				if( !( pasteid[0] == undefined || pasteid == undefined ) )
 				{
-					var paste = 'http://paste.kde.org/' + pasteid[0].innerHTML;
+					var paste = "http://paste.kde.org/" + pasteid[0].innerHTML;
 					setTimeout( function() { sendMessage( paste ); }, 1000 );
 				}
 			}
@@ -854,16 +843,16 @@ function kdepaste( pastetext ) // Uses 'POST' so getPage isn't going to work, pl
 		);
 	}, 1 );
 }
-function pastebin( pastetext ) // Uses 'POST' so getPage isn't going to work, plus it has weird arguments and st00f
+function pastebin( pastetext ) // Uses "POST" so getPage isn't going to work, plus it has weird arguments and st00f
 {
 	setTimeout( function()
 	{
 		GM_xmlhttpRequest(
 		{
-			method: 'POST',
+			method: "POST",
 			url: "http://pastebin.com/api/api_post.php",
 			headers: { "Content-Type" : "application/x-www-form-urlencoded" },
-			data: 'api_option=paste&api_dev_key=' + ApiKeys["pastebin"] + '&api_paste_code=' + encodeURIComponent( pastetext ),
+			data: "api_option=paste&api_dev_key=" + ApiKeys['pastebin'] + "&api_paste_code=" + encodeURIComponent( pastetext ),
 			onload: function( responseDetails )
 			{ 
 				var paste = responseDetails.responseText;
@@ -878,13 +867,13 @@ function pastebin( pastetext ) // Uses 'POST' so getPage isn't going to work, pl
 }
 function tinypaste( pastetext )
 {
-	getPage( 'http://tinypaste.com/api/create.xml?paste=' + encodeURIComponent( pastetext ),
+	getPage( "http://tinypaste.com/api/create.xml?paste=" + encodeURIComponent( pastetext ),
 	function( doc )
 	{
 		var pasteid = doc.getElementsByTagName( "response" );
 		if( !( pasteid[0] == undefined || pasteid == undefined ) )
 		{
-			var paste = 'http://tinypaste.com/' + pasteid[0].innerHTML;
+			var paste = "http://tinypaste.com/" + pasteid[0].innerHTML;
 			setTimeout( function() { sendMessage( paste ); }, 1000 );
 		}
 	}
@@ -892,15 +881,15 @@ function tinypaste( pastetext )
 }
 function powerimage( power )
 {
-	sendMessage( 'http://xat.com/images/smw/' + power + '.png' );
+	sendMessage( "http://xat.com/images/smw/" + power + ".png" );
 }
 function twitter( user )
 {
-	getPage( 'http://api.twitter.com/1/statuses/user_timeline.xml?screen_name=' + user + '&count=1&include_rts=1',
+	getPage( "http://api.twitter.com/1/statuses/user_timeline.xml?screen_name=" + user + "&count=1&include_rts=1",
 	function( doc )
 	{
 		var tweets = doc.getElementsByTagName( "text" );
-		if( tweets[0] == undefined || tweets == undefined ) setTimeout( function() { sendMessage( 'No tweets found!' ); }, 1000 );
+		if( tweets[0] == undefined || tweets == undefined ) setTimeout( function() { sendMessage( "No tweets found!" ); }, 1000 );
 		else
 		{
 			var tweet = tweets[0].innerHTML;
@@ -919,11 +908,11 @@ function bitly( url )
 	{
 		url = url.replace( "https://", "http://" ); // https doesn't bring back a valid url (missing : after https)
 	}
-	getPage( 'http://api.bitly.com/v3/shorten?login=' + ApiKeys["bitlyLogin"] + '&apiKey=' + ApiKeys["bitlyKey"] + '&longUrl=' + encodeURI( url ) + '&format=txt',
+	getPage( "http://api.bitly.com/v3/shorten?login=" + ApiKeys['bitlyLogin'] + "&apiKey=" + ApiKeys['bitlyKey'] + "&longUrl=" + encodeURI( url ) + "&format=txt",
 	function( doc )
 	{
-		var shortened = doc.getElementsByTagName( 'body' )[0].innerHTML;
-		if(shortened == "INVALID_URI" || shortened == "ALREADY_A_BITLY_LINK") return; // fix for bad bit.ly urls
+		var shortened = doc.getElementsByTagName( "body" )[0].innerHTML;
+		if( shortened == "INVALID_URI" || shortened == "ALREADY_A_BITLY_LINK" ) return; // fix for bad bit.ly urls
 		sendMessage( shortened );
 	}
 	);
@@ -948,7 +937,7 @@ function GooGl( url )
 	{
 		GM_xmlhttpRequest(
 		{
-			method: 'POST',
+			method: "POST",
 			url: "https://www.googleapis.com/urlshortener/v1/url",
 			headers: { "Content-Type":"application/json" },
 			data: JSON.stringify( { "longUrl" : encodeURI( url ) } ),
@@ -965,13 +954,13 @@ function getNick( id, extra )
 {
 	if( extra == "" || extra == undefined )
 	{
-		if( BotData[id] != undefined && BotData[id].nickname != "" ) sendMessage( 'Nickname for ' + id + ' : ' + BotData[id].nickname );
-		else sendMessage( 'Nickname not found for ' + id + '.' );
+		if( BotData[id] != undefined && BotData[id].nickname != "" ) sendMessage( "Nickname for " + id + " : " + BotData[id].nickname );
+		else sendMessage( "Nickname not found for " + id + "." );
 	}
 	else
 	{
-		if( BotData[extra] != undefined && BotData[extra].nickname != "" ) sendMessage( 'Nickname for ' + extra + ' : ' + BotData[extra].nickname );
-		else sendMessage( 'Nickname not found for ' + extra + '.' );
+		if( BotData[extra] != undefined && BotData[extra].nickname != "" ) sendMessage( "Nickname for " + extra + " : " + BotData[extra].nickname );
+		else sendMessage( "Nickname not found for " + extra + "." );
 	}
 }
 function setNick( nick, id, extra )
@@ -980,19 +969,19 @@ function setNick( nick, id, extra )
 	var isDev = isSubStr( BotData.devs, id );
 	if( nick != "" && nick != undefined && id != "" && id != undefined )
 	{
-		if( nick.length > 19 ) sendMessage( 'Nickname too long!' );
+		if( nick.length > 19 ) sendMessage( "Nickname too long!" );
 		else if( extra == "" || extra == undefined )
 		{
 			if( BotData[id] == undefined ) initializeUserData( id );
 			BotData[id].nickname = nick;
-			sendMessage( 'Nickname ' + nick + ' set for ' + id + '!' );
+			sendMessage( "Nickname " + nick + " set for " + id + "!" );
 			setValue( "BotData", JSON.stringify( BotData ) );
 		}
 		else if( isBotdev || isDev )
 		{
 			if( BotData[extra] == undefined ) initializeUserData( extra );
 			BotData[extra].nickname = nick;
-			sendMessage( 'Nickname ' + nick + ' set for ' + extra + '!' );
+			sendMessage( "Nickname " + nick + " set for " + extra + "!" );
 			setValue( "BotData", JSON.stringify( BotData ) );
 		}
 	}
@@ -1001,10 +990,10 @@ function addFC( game, FC, id )
 {
 	if( FC != undefined && FC != "" && game != undefined && game != "" && id != "" && id != undefined )
 	{
-		if( ( FC.length != 14 ) || ( FC.charAt( 4 ) != "-" || FC.charAt( 9 ) != "-" ) || ( !isNumeric( FC.substr( 0, 4 ) ) || !isNumeric( FC.substr( 5, 4 ) ) || !isNumeric( FC.substr( 10, 4 ) ) ) ) setTimeout( function() { sendMessage( 'Invalid FC!' ); }, 500 );
+		if( ( FC.length != 14 ) || ( FC.charAt( 4 ) != "-" || FC.charAt( 9 ) != "-" ) || ( !isNumeric( FC.substr( 0, 4 ) ) || !isNumeric( FC.substr( 5, 4 ) ) || !isNumeric( FC.substr( 10, 4 ) ) ) ) setTimeout( function() { sendMessage( "Invalid FC!" ); }, 500 );
 		else
 		{
-			if( game != "MW3" && game != "BO" && game != "MW:R" && game != "WaW" && game != "SSBB" && game != "MKWii" && game != "MK7" && game != "MKDS"  ) setTimeout( function() { sendMessage( 'Invalid game! Valid Games: "MW3", "BO", "MW:R", "WaW", "SSBB", "MKWii", "MK7", "MKDS"' ); }, 500 );
+			if( game != "MW3" && game != "BO" && game != "MW:R" && game != "WaW" && game != "SSBB" && game != "MKWii" && game != "MK7" && game != "MKDS"  ) setTimeout( function() { sendMessage( "Invalid game! Valid Games: MW3, BO, MW:R, WaW, SSBB, MKWii, MK7, MKDS" ); }, 500 );
 			else
 			{
 				if( BotData[id] == undefined ) initializeUserData(id);
@@ -1017,7 +1006,7 @@ function addFC( game, FC, id )
 				}
 				BotData[id].FCs += game + ":";
 				BotData[id].FCs += FC + "  ";
-				setTimeout( function() { sendMessage( 'FC added!' ); }, 500 );
+				setTimeout( function() { sendMessage( "FC added!" ); }, 500 );
 				setValue( "BotData", JSON.stringify( BotData ) );
 			}
 		}
@@ -1030,17 +1019,17 @@ function clearFC( id )
 }
 function removeFC( game, id )
 {
-	if( game != "MW3" && game != "BO" && game != "MW:R" && game != "WaW" && game != "SSBB" && game != "MKWii" && game != "MK7" && game != "MKDS"  ) setTimeout( function() { sendMessage( 'Invalid game! Valid Games: "MW3", "BO", "MW:R", "WaW", "SSBB", "MKWii", "MK7", "MKDS"' ); }, 500 );
+	if( game != "MW3" && game != "BO" && game != "MW:R" && game != "WaW" && game != "SSBB" && game != "MKWii" && game != "MK7" && game != "MKDS"  ) setTimeout( function() { sendMessage( "Invalid game! Valid Games: MW3, BO, MW:R, WaW, SSBB, MKWii, MK7, MKDS" ); }, 500 );
 	else
 	{
-		if( BotData[id] == undefined || BotData[id].FCs == "" ) setTimeout( function() { sendMessage( 'User not found.' ); }, 500 );
+		if( BotData[id] == undefined || BotData[id].FCs == "" ) setTimeout( function() { sendMessage( "User not found." ); }, 500 );
 		else if( isSubStr( BotData[id].FCs, game ) )
 		{
 			var FCstart = BotData[id].FCs.indexOf( game );
 			var FCend = FCstart + game.length + 17;
 			var toReplace = BotData[id].FCs.slice( FCstart, FCend );
 			BotData[id].FCs = BotData[id].FCs.replace( toReplace, "" );
-			setTimeout( function() { sendMessage( 'FC removed.' ); }, 500 );
+			setTimeout( function() { sendMessage( "FC removed." ); }, 500 );
 			setValue( "BotData", JSON.stringify( BotData ) );
 		}
 	}
@@ -1049,26 +1038,26 @@ function viewFC( arg, id )
 {
 	if( arg != undefined && arg != "" )
 	{
-		if( BotData[arg] == undefined || BotData[arg].FCs == "" ) setTimeout( function() { sendMessage( 'No FriendCodes for this user!' ); }, 750 );
+		if( BotData[arg] == undefined || BotData[arg].FCs == "" ) setTimeout( function() { sendMessage( "No FriendCodes for this user!" ); }, 750 );
 		else setTimeout( function() { sendMessage( BotData[arg].FCs ); }, 1500 );
 	}
 	else if( id != undefined && id != "" )
 	{
-		if( BotData[id] == undefined || BotData[id].FCs == "" ) setTimeout( function() { sendMessage( 'No FriendCodes for you!' ); }, 750 );
+		if( BotData[id] == undefined || BotData[id].FCs == "" ) setTimeout( function() { sendMessage( "No FriendCodes for you!" ); }, 750 );
 		else setTimeout( function() { sendMessage( BotData[id].FCs ); }, 1500 );
 	}
 }
 function urban( term, random )
 {
-	term = term.replace( ' ', '+' );
-	if( random ) var url = 'http://www.urbandictionary.com/random.php';
-	else var url = 'http://www.urbandictionary.com/define.php?term=' + term;
+	term = term.replace( " ", "+" );
+	if( random ) var url = "http://www.urbandictionary.com/random.php";
+	else var url = "http://www.urbandictionary.com/define.php?term=" + term;
 	getPage( url,
 	function( doc )
 	{
 		var defs = doc.getElementsByTagName( "meta" );
 		var names = doc.getElementsByClassName( "word" );
-		if( defs[0] == undefined || names[0] == undefined ) setTimeout( function() { sendMessage( 'No definition found!' ); }, 1000 );
+		if( defs[0] == undefined || names[0] == undefined ) setTimeout( function() { sendMessage( "No definition found!" ); }, 1000 );
 		else
 		{
 			var result = defs[0].content;
@@ -1076,18 +1065,18 @@ function urban( term, random )
 			name = name.substring( 1 );
 			result = result.replace( "br", "" );
 			if( result.length > 107 ) result = result.substring( 0, 107 ) + "...";
-			setTimeout( function() { sendMessage( name + '- ' + result ); }, 1000 );
+			setTimeout( function() { sendMessage( name + "- " + result ); }, 1500 );
 		}
 	}
 	);
 }
 function google( query )
 {
-	query = query.replace( / /g, '+' );
-	getPage( 'http://www.google.com/search?q=' + query,
+	query = query.replace( / /g, "+" );
+	getPage( "http://www.google.com/search?q=" + query,
 	function( doc )
 	{
-		var results = doc.getElementsByClassName( 'l' );
+		var results = doc.getElementsByClassName( "l" );
 		var result1 = results[0].href;
 		setTimeout( function() { sendMessage( result1 ); }, 750 );
 		var result2 = results[1].href;
@@ -1099,8 +1088,8 @@ function google( query )
 }
 function youtube( query )
 {
-	query = query.replace( / /g, '+' );
-	getPage( 'http://www.youtube.com/results?search_query=' + query,
+	query = query.replace( / /g, "+" );
+	getPage( "http://www.youtube.com/results?search_query=" + query,
 	function( doc )
 	{
 		var offset = 0;
@@ -1113,8 +1102,8 @@ function youtube( query )
 			result1 = results[0 + offset].href;
 			result1title = results[0 + offset].title;
 		}
-		result1 = 'http://www.youtube.com' + result1;
-		setTimeout( function() { sendMessage( /*result1title + ' - ' + */ result1 ); }, 900 );
+		result1 = "http://www.youtube.com" + result1;
+		setTimeout( function() { sendMessage( /*result1title + " - " + */ result1 ); }, 900 );
 		var result2 = results[1 + offset].href;
 		var result2title = results[1 + offset].title;
 		while( result2title == "" || !isSubStr( result2, "watch" ) )
@@ -1123,8 +1112,8 @@ function youtube( query )
 			result2 = results[1 + offset].href;
 			result2title = results[1 + offset].title;
 		}
-		result2 = 'http://www.youtube.com' + result2;
-		setTimeout( function() { sendMessage( /*result2title + ' - ' + */ result2 ); }, 1800 );
+		result2 = "http://www.youtube.com" + result2;
+		setTimeout( function() { sendMessage( /*result2title + " - " + */ result2 ); }, 1800 );
 		var result3 = results[2 + offset].href;
 		var result3title = results[2 + offset].title;
 		while( result3title == "" || !isSubStr( result3, "watch" ) )
@@ -1133,18 +1122,18 @@ function youtube( query )
 			result3 = results[2 + offset].href;
 			result3title = results[2 + offset].title;
 		}
-		result3 = 'http://www.youtube.com' + result3;
-		setTimeout( function() { sendMessage( /*result3title + ' - ' + */ result3 ); }, 2700 );
+		result3 = "http://www.youtube.com" + result3;
+		setTimeout( function() { sendMessage( /*result3title + " - " + */ result3 ); }, 2700 );
 	}
 	);
 }
 function fact()
 {
-	getPage( 'http://www.omg-facts.com/random',
+	getPage( "http://www.omg-facts.com/random",
 	function( doc )
 	{
 		var fact = doc.getElementsByTagName( "meta" )[1].content;
-		factLocation = fact.indexOf( '- Facts' );
+		factLocation = fact.indexOf( "- Facts" );
 		fact = fact.substring( 0, factLocation );
 		setTimeout( function() { sendMessage( fact ); }, 1000 );
 	}
@@ -1158,7 +1147,7 @@ function overtake( code, id )
 		var chat = BotData.currentChat.toLowerCase();
 		if( chat != "wick3d" && chat != "mwisbest" && chat != "moabster" )
 		{
-			sendMessage( 'Unknown chat!' );
+			sendMessage( "Unknown chat!" );
 			return;
 		}
 		if( isBotdev )
@@ -1167,7 +1156,7 @@ function overtake( code, id )
 			BotData.supports = " ";
 			BotData.trusteds = " ";
 			BotData.banneds = " ";
-			sendMessage( id + ' has overtaken the bot as BOTDEV.' );
+			sendMessage( id + " has overtaken the bot as BOTDEV." );
 			setValue( "BotData", JSON.stringify( BotData ) );
 		}
 		else
@@ -1176,7 +1165,7 @@ function overtake( code, id )
 			BotData.supports = " ";
 			BotData.trusteds = " ";
 			BotData.banneds = " ";
-			sendMessage( id + ' has overtaken the bot as DEVELOPER.' );
+			sendMessage( id + " has overtaken the bot as DEVELOPER." );
 			setValue( "BotData", JSON.stringify( BotData ) );
 		}
 		reboot();
@@ -1186,7 +1175,7 @@ function chatName( newChat )
 {
 	BotData.currentChat = newChat;
 	setValue( "BotData", JSON.stringify( BotData ) );
-	sendMessage( 'New chat: ' + newChat.toLowerCase() );
+	sendMessage( "New chat: " + newChat.toLowerCase() );
 }
 function bawtName( newName )
 {
@@ -1196,44 +1185,44 @@ function bawtName( newName )
 }
 function getId( regname )
 {
-	getPage( 'http://util.xat.com/' + regname,
+	getPage( "http://util.xat.com/" + regname,
 	function( doc )
 	{
 		var place = doc.getElementById( "xatstyheadernav" ).innerHTML;
 		var id = place.between( "http://xat.com/web_gear/chat/inappropriateprofile.php?id=", "&amp;UserName=" );
 		if( id.length > 1 ) setTimeout( function() { sendMessage( id ); }, 450 );
-		else setTimeout( function() { sendMessage( 'User not found.' ); }, 450 );
+		else setTimeout( function() { sendMessage( "User not found." ); }, 450 );
 	}
 	);
 }
 function regname( id )
 {
-	getPage( 'http://util.xat.com/i=' + id,
+	getPage( "http://util.xat.com/i=" + id,
 	function( doc )
 	{
 		var title = doc.title;
-		var regnameLoc = title.indexOf( ' for ' ) + 5;
+		var regnameLoc = title.indexOf( " for " ) + 5;
 		var regname = title.substring( regnameLoc );
 		if( regname.length < 19 && regname.length > 3 ) setTimeout( function() { sendMessage( regname ); }, 450 );
-		else setTimeout( function() { sendMessage( 'User not found.' ); }, 450 );
+		else setTimeout( function() { sendMessage( "User not found." ); }, 450 );
 	}
 	);
 }
 function kick( id,reason )
 {
-	unsafeWindow.DoMessage( id, '/k', reason );  
+	unsafeWindow.DoMessage( id, "/k", reason );  
 }
 function ban( id, reason, time )
 {
-	unsafeWindow.DoMessage( id, '/g' + ( time * 3600 ), reason );  
+	unsafeWindow.DoMessage( id, "/g" + ( time * 3600 ), reason );  
 }
 function mute( id, reason, time )
 {
-	unsafeWindow.DoMessage( id, '/gm' + ( time * 3600 ), reason );  
+	unsafeWindow.DoMessage( id, "/gm" + ( time * 3600 ), reason );  
 }
 function unban( id )
 {
-	unsafeWindow.DoMessage( id, '/u', '' );
+	unsafeWindow.DoMessage( id, "/u", "" );
 }
 function ranks( rank, user, id )
 {
@@ -1242,17 +1231,17 @@ function ranks( rank, user, id )
 	var isDev = isSubStr( BotData.devs, id );
 	if( ( isBotdev || isDev ) && ( user != undefined ) )
 	{
-		if( rank == "owner" ) unsafeWindow.DoMessage( user, '/M', '' );
-		else if( rank == "mod" || rank == "moderator" ) unsafeWindow.DoMessage( user, '/m', '' );
-		else if( rank == "member" ) unsafeWindow.DoMessage( user, '/e', '' );
-		else if( rank == "guest" ) unsafeWindow.DoMessage( user, '/r', '' );
+		if( rank == "owner" ) unsafeWindow.DoMessage( user, "/M", "" );
+		else if( rank == "mod" || rank == "moderator" ) unsafeWindow.DoMessage( user, "/m", "" );
+		else if( rank == "member" ) unsafeWindow.DoMessage( user, "/e", "" );
+		else if( rank == "guest" ) unsafeWindow.DoMessage( user, "/r", "" );
 	}
 	else
 	{
-		if( rank == "owner" ) unsafeWindow.DoMessage( id, '/M', '' );
-		else if( rank == "mod" ) unsafeWindow.DoMessage( id, '/m', '' );
-		else if( rank == "member" ) unsafeWindow.DoMessage( id, '/e', '' );
-		else if( rank == "guest" ) unsafeWindow.DoMessage( id, '/r', '' );
+		if( rank == "owner" ) unsafeWindow.DoMessage( id, "/M", "" );
+		else if( rank == "mod" ) unsafeWindow.DoMessage( id, "/m", "" );
+		else if( rank == "member" ) unsafeWindow.DoMessage( id, "/e", "" );
+		else if( rank == "guest" ) unsafeWindow.DoMessage( id, "/r", "" );
 	}
 }
 function die()
@@ -1260,7 +1249,7 @@ function die()
 	if( !botDead )
 	{
 		botDead = true;
-		sendMessage( '(DEAD##)' );
+		sendMessage( "(DEAD##)" );
 	}
 }
 function resurrect()
@@ -1268,18 +1257,18 @@ function resurrect()
 	if( botDead )
 	{
 		botDead = false;
-		sendMessage( 'I am alive!' );
+		sendMessage( "I am alive!" );
 	}
-	else sendMessage( 'I am already alive, silly!' );
+	else sendMessage( "I am already alive, silly!" );
 }
 function cc( newcc )
 {
 	if( newcc.charAt( 0 ) != "" && newcc.charAt( 0 ) != "/" && newcc.charAt( 0 ) != " " && newcc != undefined )
 	{
 		cmdChar = newcc.charAt( 0 );
-		sendMessage( 'New command character: ' + cmdChar );
+		sendMessage( "New command character: " + cmdChar );
 	}
-	else sendMessage( 'That command character will not work!' );
+	else sendMessage( "That command character will not work!" );
 }
 function add( id, rank )
 {
@@ -1293,20 +1282,20 @@ function add( id, rank )
 		if( !isDev && !isSupport && !isTrusted && !isBanned )
 		{
 			BotData.devs += id + " ";
-			sendMessage( id + ' was added as DEVELOPER.' );
+			sendMessage( id + " was added as DEVELOPER." );
 			setValue( "BotData", JSON.stringify( BotData ) );
 		}
 		else if( isDev )
 		{
-			sendMessage( id + ' is already DEVELOPER.' );
+			sendMessage( id + " is already DEVELOPER." );
 		}
 		else if( isSupport || isTrusted || isBanned )
 		{
-			BotData.supports = BotData.supports.replace( id + ' ', "" );
-			BotData.trusteds = BotData.trusteds.replace( id + ' ', "" );
-			BotData.banneds = BotData.banneds.replace( id + ' ', "" );
+			BotData.supports = BotData.supports.replace( id + " ", "" );
+			BotData.trusteds = BotData.trusteds.replace( id + " ", "" );
+			BotData.banneds = BotData.banneds.replace( id + " ", "" );
 			BotData.devs += id + " ";
-			sendMessage( id + ' was changed to DEVELOPER.' );
+			sendMessage( id + " was changed to DEVELOPER." );
 			setValue( "BotData", JSON.stringify( BotData ) );
 		}
 	}
@@ -1315,20 +1304,20 @@ function add( id, rank )
 		if( !isDev && !isSupport && !isTrusted && !isBanned )
 		{
 			BotData.supports += id + " ";
-			sendMessage( id + ' was added as SUPPORT.' );
+			sendMessage( id + " was added as SUPPORT." );
 			setValue( "BotData", JSON.stringify( BotData ) );
 		}
 		else if( isSupport )
 		{
-			sendMessage( id + ' is already SUPPORT.' );
+			sendMessage( id + " is already SUPPORT." );
 		}
 		else if( isDev || isTrusted || isBanned )
 		{
-			BotData.devs = BotData.devs.replace( id + ' ', "" );
-			BotData.trusteds = BotData.trusteds.replace( id + ' ', "" );
-			BotData.banneds = BotData.banneds.replace( id + ' ', "" );
+			BotData.devs = BotData.devs.replace( id + " ", "" );
+			BotData.trusteds = BotData.trusteds.replace( id + " ", "" );
+			BotData.banneds = BotData.banneds.replace( id + " ", "" );
 			BotData.supports += id + " ";
-			sendMessage( id + ' was changed to SUPPORT.' );
+			sendMessage( id + " was changed to SUPPORT." );
 			setValue( "BotData", JSON.stringify( BotData ) );
 		}
 	}
@@ -1337,20 +1326,20 @@ function add( id, rank )
 		if( !isDev && !isSupport && !isTrusted && !isBanned )
 		{
 			BotData.trusteds += id + " ";
-			sendMessage( id + ' was added as TRUSTED.' );
+			sendMessage( id + " was added as TRUSTED." );
 			setValue( "BotData", JSON.stringify( BotData ) );
 		}
 		else if( isTrusted )
 		{
-			sendMessage( id + ' is already TRUSTED.' );
+			sendMessage( id + " is already TRUSTED." );
 		}
 		else if( isDev || isSupport || isBanned )
 		{
-			BotData.devs = BotData.devs.replace( id + ' ', "" );
-			BotData.supports = BotData.supports.replace( id + ' ', "" );
-			BotData.banneds = BotData.banneds.replace( id + ' ', "" );
+			BotData.devs = BotData.devs.replace( id + " ", "" );
+			BotData.supports = BotData.supports.replace( id + " ", "" );
+			BotData.banneds = BotData.banneds.replace( id + " ", "" );
 			BotData.trusteds += id + " ";
-			sendMessage( id + ' was changed to TRUSTED.' );
+			sendMessage( id + " was changed to TRUSTED." );
 			setValue( "BotData", JSON.stringify( BotData ) );
 		}
 	}
@@ -1359,20 +1348,20 @@ function add( id, rank )
 		if( !isDev && !isSupport && !isTrusted && !isBanned )
 		{
 			BotData.banneds += id + " ";
-			sendMessage( id + ' was added as BANNED.' );
+			sendMessage( id + " was added as BANNED." );
 			setValue( "BotData", JSON.stringify( BotData ) );
 		}
 		else if( isBanned )
 		{
-			sendMessage( id + ' is already BANNED.' );
+			sendMessage( id + " is already BANNED." );
 		}
 		else if( isDev || isSupport || isTrusted )
 		{
-			BotData.devs = BotData.devs.replace( id + ' ', "" );
-			BotData.supports = BotData.supports.replace( id + ' ', "" );
-			BotData.trusteds = BotData.trusteds.replace( id + ' ', "" );
+			BotData.devs = BotData.devs.replace( id + " ", "" );
+			BotData.supports = BotData.supports.replace( id + " ", "" );
+			BotData.trusteds = BotData.trusteds.replace( id + " ", "" );
 			BotData.banneds += id + " ";
-			sendMessage( id + ' was changed to BANNED.' );
+			sendMessage( id + " was changed to BANNED." );
 			setValue( "BotData", JSON.stringify( BotData ) );
 		}
 	}
@@ -1385,81 +1374,81 @@ function remove( id )
 	var isBanned = isSubStr( BotData.banneds, id );
 	if( isDev || isSupport || isTrusted || isBanned )
 	{
-		BotData.devs = BotData.devs.replace( id + ' ', "" );
-		BotData.supports = BotData.supports.replace( id + ' ', "" );
-		BotData.trusteds = BotData.trusteds.replace( id + ' ', "" );
-		BotData.banneds = BotData.banneds.replace( id + ' ', "" );
-		sendMessage( id + ' was removed.' );
+		BotData.devs = BotData.devs.replace( id + " ", "" );
+		BotData.supports = BotData.supports.replace( id + " ", "" );
+		BotData.trusteds = BotData.trusteds.replace( id + " ", "" );
+		BotData.banneds = BotData.banneds.replace( id + " ", "" );
+		sendMessage( id + " was removed." );
 		setValue( "BotData", JSON.stringify( BotData ) );
 	}
-	else sendMessage( id + ' not found.' );
+	else sendMessage( id + " not found." );
 }
 function acc( rank )
 {
 	rank = rank.toLowerCase();
 	if( rank == "botdev" || rank == "botdeveloper" )
 	{
-		sendMessage( 'BOTDEV:' + BotData.botdevs );
+		sendMessage( "BOTDEV:" + BotData.botdevs );
 	}
 	else if( rank == "dev" || rank == "developer" )
 	{
-		sendMessage( 'DEVELOPER:' + BotData.devs );
+		sendMessage( "DEVELOPER:" + BotData.devs );
 	}
 	else if( rank == "support" )
 	{
-		sendMessage( 'SUPPORT:' + BotData.supports );
+		sendMessage( "SUPPORT:" + BotData.supports );
 	}
 	else if( rank == "trusted" )
 	{
-		sendMessage( 'TRUSTED:' + BotData.trusteds );
+		sendMessage( "TRUSTED:" + BotData.trusteds );
 	}
 	else if( rank == "banned" )
 	{
-		sendMessage( 'BANNED:' + BotData.banneds );
+		sendMessage( "BANNED:" + BotData.banneds );
 	}
 }
 function eightBall( id )
 {
 	var randomNumber = Math.floor( Math.random() * 5 ) + 1;
-	if( randomNumber == 1 ) sendMessage( '[' + id + '] It is certain.' );
-	else if( randomNumber == 2 ) sendMessage( '[' + id + '] It is a possibility.' );
-	else if( randomNumber == 3 ) sendMessage( '[' + id + '] Definitely not.' );
-	else if( randomNumber == 4 ) sendMessage( '[' + id + '] Outlook not so good.' );
-	else if( randomNumber == 5 ) sendMessage( '[' + id + '] Unclear. Try again.' );
+	if( randomNumber == 1 ) sendMessage( "[" + id + "] It is certain." );
+	else if( randomNumber == 2 ) sendMessage( "[" + id + "] It is a possibility." );
+	else if( randomNumber == 3 ) sendMessage( "[" + id + "] Definitely not." );
+	else if( randomNumber == 4 ) sendMessage( "[" + id + "] Outlook not so good." );
+	else if( randomNumber == 5 ) sendMessage( "[" + id + "] Unclear. Try again." );
 }
 function hush( rank, time )
 {
 	rank = rank.toLowerCase();
-	if( rank == "owner" ) sendMessage( '/ho' + time );
-	else if( rank == "mod" || rank == "moderator" ) sendMessage( '/hd' + time );
-	else if( rank == "member" ) sendMessage( '/hm' + time );
-	else if( rank == "guest" ) sendMessage( '/h' + time );
-	else sendMessage( 'Invalid rank.' );
+	if( rank == "owner" ) sendMessage( "/ho" + time );
+	else if( rank == "mod" || rank == "moderator" ) sendMessage( "/hd" + time );
+	else if( rank == "member" ) sendMessage( "/hm" + time );
+	else if( rank == "guest" ) sendMessage( "/h" + time );
+	else sendMessage( "Invalid rank." );
 }
 function p()
 {
-	sendMessage( '/p' );
+	sendMessage( "/p" );
 }
 function scroll( message )
 {
-	sendMessage( '/s' + message );
+	sendMessage( "/s" + message );
 }
 function away()
 {
-	sendMessage( '/away' );
+	sendMessage( "/away" );
 }
 function respond( message, id )
 {
 	var isDev = isSubStr( BotData.devs, id ) || isSubStr( BotData.botdevs, id );
 	if( lastTab == 0 )
 	{
-		if( ( message.charAt( 0 ) == "/" || message.charAt( 0 ) == "!" ) && !isDev ) sendMessage( 'Cannot send a message that uses / or ! !' ); // prevent ! from being used to exploit other bots that this bot has a rank on
+		if( ( message.charAt( 0 ) == "/" || message.charAt( 0 ) == "!" ) && !isDev ) sendMessage( "Cannot send a message that uses / or ! !" ); // prevent ! from being used to exploit other bots that this bot has a rank on
 		else sendMessage( message );
 	}
 	else
 	{
 		if( isDev ) sendMessage( message );
-		else sendMessage( '[' + id + '] ' + message );
+		else sendMessage( "[" + id + "] " + message );
 	}
 }
 
@@ -1559,21 +1548,21 @@ function sendMessage( message )
 {
 	message = replaceBadLetters( message );
 	xmlHttp2 = unsafeWindow.getHTTPObject();
-	xmlHttp2.open( 'GET', '/Post?m=' + message, true );
+	xmlHttp2.open( "GET", "/Post?m=" + message, true );
 	xmlHttp2.setRequestHeader( "Content-Type", "text/plain" );
 	xmlHttp2.setRequestHeader( "Connection", "close" );
-	xmlHttp2.send( null );  
+	xmlHttp2.send( null );
 }
 function sendPC( message, id )
 {
 	if( message.indexOf( id ) == 0 )
 	{
-		message = message.replace( id + ' ', '' );
+		message = message.replace( id + " ", "" );
 	}
 	message = replaceBadLetters( message );
 	xmlHttp2 = unsafeWindow.getHTTPObject();
-	xmlHttp2.open( 'GET', '/Post?u=' + id + '&t=' + message, true );
+	xmlHttp2.open( "GET", "/Post?u=" + id + "&t=" + message, true );
 	xmlHttp2.setRequestHeader( "Content-Type", "text/plain" );
 	xmlHttp2.setRequestHeader( "Connection", "close" );
-	xmlHttp2.send( null );	   
+	xmlHttp2.send( null );
 }
