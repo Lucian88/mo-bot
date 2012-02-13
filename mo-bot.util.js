@@ -92,3 +92,12 @@ function wordScramble( word )
 	if( word == originalWord ) word = wordScramble( word );
 	return word;
 }
+function generateOvertake()
+{
+	var str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	str = wordScramble( str );
+	str = GM_cryptoHash( str, "SHA1" );
+	var randomNumber = Math.floor( Math.random() * 35 );
+	str = str.substring( randomNumber, randomNumber + 5 );
+	return str;
+}
