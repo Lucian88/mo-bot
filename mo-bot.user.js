@@ -6,14 +6,13 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.4.3.1
+// @version      0.4.3.2
 // @icon         https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @icon64       https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/
-// @require      https://mo-bot.googlecode.com/hg/mo-bot.util.js
+// @require      https://mo-bot.googlecode.com/hg/mo-bot.utils.js
 // @updateURL    https://mo-bot.googlecode.com/hg/mo-bot.meta.js
 // ==/UserScript==
-
 
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -33,6 +32,7 @@ var extraWait = 2;
 var originalDate = new Date();
 var originalMilliseconds = originalDate.getTime();
 var startTime = time();
+var overtakeCode = generateOvertake();
 var lastTab = 0;
 var botDead = false;
 var scrambling = false;
@@ -133,8 +133,6 @@ function initializeUserData( id )
 					"nickname" : ""
 				  };
 }
-var overtakeCode = GM_cryptoHash( time(), "MD5" );
-overtakeCode = overtakeCode.substring( 0, 5 );
 
 document.getElementById( "body" ).bgColor = Colors['Background'];
 document.getElementById( "body" ).innerHTML = "<div id=\"fillMe\" style=\"position:relative;left:0px;width:70%;background-color:" + Colors['Background'] + ";\" ></div><div id=\"fillUser\" style=\"position:fixed;top:0px;right:0px;width:30%;text-align:right;background-color:" + Colors['Background'] + ";\" ></div><div id=\"tabs\" style=\"height:25px;background-color:" + Colors['Tab'] + ";\"></div><div id=\"name\" style=\"font-size:0px;background-color:" + Colors['Background'] + ";color:" + Colors['Background'] + ";display:none;\" ></div>";
@@ -1230,7 +1228,7 @@ function regname( id )
 		var title = doc.title;
 		var regnameLoc = title.indexOf( " for " ) + 5;
 		var regname = title.substring( regnameLoc );
-		if( regname.length < 19 && regname.length > 3 ) setTimeout( function() { sendMessage( regname ); }, 450 );
+		if( regname.length < 19 && regname.length > 2 ) setTimeout( function() { sendMessage( regname ); }, 450 );
 		else setTimeout( function() { sendMessage( "User not found." ); }, 450 );
 	}
 	);
