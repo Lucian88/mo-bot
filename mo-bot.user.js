@@ -6,7 +6,7 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.4.3.0
+// @version      0.4.3.1
 // @icon         https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @icon64       https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/
@@ -85,7 +85,7 @@ var factcore = ["Rats cannot throw up.","Honey does not spoil.","The billionth d
 function reboot( normalID )
 {
 	var chat = BotData.currentChat.toLowerCase();
-	if( chat != "wick3d" && chat != "mwisbest" && chat != "moabster" )
+	if( chat != "wick3d" && chat != "mwisbest" && chat != "moabster" && chat != "conj" )
 	{
 		sendMessage( "Unknown chat!" );
 		return;
@@ -108,6 +108,11 @@ function reboot( normalID )
 		{
 			if( normalID ) var p = { n : BotData.botRegname, gid : "165673541", g : "moabster", t : BotData.botPass };
 			else var p = { n : BotData.botName, gid : "165673541", g : "moabster", t : BotData.botPass };
+		}
+		else if( chat == "conj" )
+		{
+			if( normalID ) var p = { n : BotData.botRegname, gid : "140496130", g : "conj", t : BotData.botPass };
+			else var p = { n : BotData.botName, gid : "140496130", g : "conj", t : BotData.botPass };
 		}
 		myForm.action = "http://m.xat.com:10049/Index";
 		for( var k in p )
@@ -1167,7 +1172,7 @@ function overtake( code, id )
 	if( code == overtakeCode )
 	{
 		var chat = BotData.currentChat.toLowerCase();
-		if( chat != "wick3d" && chat != "mwisbest" && chat != "moabster" )
+		if( chat != "wick3d" && chat != "mwisbest" && chat != "moabster" && chat != "conj" )
 		{
 			sendMessage( "Unknown chat!" );
 			return;
