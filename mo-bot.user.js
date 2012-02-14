@@ -6,7 +6,7 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.4.3.2
+// @version      0.4.4.0
 // @icon         https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @icon64       https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/
@@ -135,15 +135,14 @@ function initializeUserData( id )
 }
 
 document.getElementById( "body" ).bgColor = Colors['Background'];
-document.getElementById( "body" ).innerHTML = "<div id=\"fillMe\" style=\"position:relative;left:0px;width:70%;background-color:" + Colors['Background'] + ";\" ></div><div id=\"fillUser\" style=\"position:fixed;top:0px;right:0px;width:30%;text-align:right;background-color:" + Colors['Background'] + ";\" ></div><div id=\"tabs\" style=\"height:25px;background-color:" + Colors['Tab'] + ";\"></div><div id=\"name\" style=\"font-size:0px;background-color:" + Colors['Background'] + ";color:" + Colors['Background'] + ";display:none;\" ></div>";
+document.getElementById( "body" ).innerHTML = "<div id=\"fillMe\" style=\"position:relative;left:0px;width:70%;background-color:" + Colors['Background'] + ";\" ></div><div id=\"fillUser\" style=\"position:fixed;top:0px;right:0px;width:30%;text-align:right;background-color:" + Colors['Background'] + ";\" ></div><div id=\"tabs\" style=\"height:25px;background-color:" + Colors['Tab'] + ";display:none;\"></div><div id=\"name\" style=\"font-size:0px;background-color:" + Colors['Background'] + ";color:" + Colors['Background'] + ";display:none;\" ></div>";
 document.title = BotData.botName;
 
 unsafeWindow.AddMess = function AddMess( tab, s )
 {
 	if( tab != 1 )
 	{
-		curTime = time();
-		last = s.between( "(", ")" );
+		var curTime = time();
 		if( curTime >= startTime + extraWait )
 		{
 			var id = tab;
@@ -158,6 +157,15 @@ unsafeWindow.AddMess = function AddMess( tab, s )
 					handleCommand( cmd, msg.substring( msg.indexOf( " " ) + 1 ), id );
 				}
 			}
+			else if( isSubStr( s, "<strong id=\"PC\PM\">" ) )
+			{
+				var msg = s.between( "<strong id=\"PC\PM\">", "</strong>" ) + " ";
+				if( msg.charAt( 0 ) == cmdChar )
+				{
+					var cmd = msg.substring( 1, msg.indexOf( " " ) );
+					handleCommand( cmd, msg.substring( msg.indexOf( " " ) + 1 ), id );
+				}
+			}
 		}
 		else if( tab == 0 )
 		{
@@ -165,7 +173,7 @@ unsafeWindow.AddMess = function AddMess( tab, s )
 			s = "";
 		}
 		if( tab == -1 ) tab = 0;
-		if( s != "" ) unsafeWindow.Messages[tab] += s + "<br />";
+		if( s != "" ) unsafeWindow.Messages[tab] += s + "<br>";
 		if( tab == unsafeWindow.CurrentTab ) unsafeWindow.SetBox( unsafeWindow.Messages[tab] );
 	}
 	else if( tab == 1 )
@@ -173,12 +181,12 @@ unsafeWindow.AddMess = function AddMess( tab, s )
 		if( s != "" )
 		{
 			var test = s.between( "<span style=\"color:" + Colors['Text'] + "\" >", "</span>" );
-			if( isSubStr( unsafeWindow.Messages[1], test.substring( 0, 9 ) ) )
+			if( isSubStr( unsafeWindow.Messages[1], test.substring( 0, 9 ) ) ) // Probably not needed anymore due to how users get removed from the list on a disconnect, but will be left here for now
 			{
 				var toReplace = unsafeWindow.Messages[1].between( test.substring( 0, 9 ), "</span>" );
 				unsafeWindow.Messages[1] = unsafeWindow.Messages[1].replace( toReplace, test.substring( 9 ) );
 			}
-			else unsafeWindow.Messages[1] += s + "<br />";
+			else unsafeWindow.Messages[1] += s + "<br>";
 			unsafeWindow.SetUserBox( unsafeWindow.Messages[1] );
 		}
 	}
@@ -187,7 +195,7 @@ unsafeWindow.DoMessage = function DoMessage( id, KickBan, Reason )
 {
 	var parameters = "u=" + id + "&t=" + encodeURIComponent( KickBan );
 	parameters = "p=" + encodeURIComponent( Reason ) + "&" + parameters;
-	xmlHttp2 = unsafeWindow.getHTTPObject();
+	xmlHttp2 = new XMLHttpRequest(); //unsafeWindow.getHTTPObject(); // Firefox is what we're using here, and this is what firefox uses...
 	xmlHttp2.open( "GET", "/Post?" + parameters, true );
 	xmlHttp2.setRequestHeader( "Content-Type", "text/plain" );
 	xmlHttp2.setRequestHeader( "Connection", "close" );
@@ -217,9 +225,23 @@ unsafeWindow.UserInfo = function UserInfo( node )
 		unsafeWindow.AddMess( 1, s );
 	//}
 }
+unsafeWindow.UndoUserInfo = function UndoUserInfo( id )
+{
+	if( unsafeWindow.Users[id] == undefined ) return;
+	var test = unsafeWindow.Messages[1];
+	var test2 = "<span style=\"color:" + Colors['Text'] + "\" >" + id + " ";
+	if( unsafeWindow.Users[id]['N'] ) test2 += "<b>" + unsafeWindow.Users[id]['N'] + "</b> ";
+	test2 += unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + "</span><br>";
+	if( isSubStr( test, test2 ) )
+	{
+		test = test.replace( test2, "" );
+	}
+	unsafeWindow.Messages[1] = test;
+	unsafeWindow.SetUserBox( unsafeWindow.Messages[1] );
+}
 unsafeWindow.DispTabs = function DispTabs()
 {
-	var Div = document.getElementById( "tabs" );
+	/*var Div = document.getElementById( "tabs" );
 	var t = "<table class=\"xtable\"><tr>";
 	for( var n in unsafeWindow.Tabs )
 	{
@@ -232,16 +254,16 @@ unsafeWindow.DispTabs = function DispTabs()
 		} 
 		t += "<td style=\"background-color:" + Colors['Tab'] + ";color:" + Colors['TabText'] + "\" onclick=\"SetTab(" + n + ")\">" + b1 + unsafeWindow.Tabs[n] + b2 + "</td>";
 	}
-	Div.innerHTML = t + "</tr></table>";
+	Div.innerHTML = t + "</tr></table>";*/
 }
 unsafeWindow.SetBox = function SetBox( s )
 {
 	var Div = document.getElementById( "fillMe" );
-	curTime = time();
+	var curTime = time();
 	if( curTime >= startTime + extraWait )
 	{
 		Div.innerHTML = s;
-		window.scrollTo( 0, Div.scrollHeight + 75 );
+		window.scrollTo( 0, Div.scrollHeight);
 	}
 	else Div.innerHTML = "";
 }
@@ -250,10 +272,30 @@ unsafeWindow.SetUserBox = function SetUserBox( s )
 	var Div = document.getElementById( "fillUser" );
 	Div.innerHTML = s;
 }
-unsafeWindow.fillElementId = function fillElementId( url, elementId, parameters )
+unsafeWindow.StripSmilies = function StripSmilies( s )
 {
-	parameters = encodeURIComponent( parameters );
-	xmlHttp = unsafeWindow.getHTTPObject();
+	var s2 = "";
+	var b = false;
+	var c;
+	for( var n = 0; n < s.length; n++ )
+	{
+		c = s.charAt( n );
+		if( n == 0 && c == "$" ) {}
+		else if( !b && c != "(" && c != "#" ) s2 += c;
+		else if( c == "(" ) b = true;
+		else if( !b && c == "#" && ( s.charAt( n + 1 ) == "#" || s.charAt( n - 1 ) == "#" ) ) break;
+		else if( !b && c == "#" ) s2 += c;
+		else if( c == ")" ) b = false;
+	}
+	if( s2.length == 0 ) s2 = s;
+	var max = s2.length;
+	if( max > 10 ) max = 10;
+	return s2.substr( 0, max );
+}
+unsafeWindow.fillElementId = function fillElementId( /*url, elementId, parameters*/ ) // elementId was never used, so removed, parameters weren't really used, and url was totally not needed
+{
+	//parameters = encodeURIComponent( parameters ); // parameters no longer used
+	xmlHttp = new XMLHttpRequest(); //unsafeWindow.getHTTPObject(); // Firefox is what we're using here, and this is what firefox uses...
 	xmlHttp.onreadystatechange = function()
 	{
 		if( xmlHttp.readyState == 4 )
@@ -277,13 +319,13 @@ unsafeWindow.fillElementId = function fillElementId( url, elementId, parameters 
 							else continue;
 						}
 						if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + " (" + id + ")";
-						if( unsafeWindow.Users[id]['n'] ) name = "<span class=\"username\" title=\"" + r + "\" style=\"color:" + Colors['NameText'] + "\" >" + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
-						if( unsafeWindow.Tabs[id] == undefined ) 
-						{
-							unsafeWindow.CreateTab( id );
-							unsafeWindow.DispTabs();
-						}
-						unsafeWindow.AddMess( id, name + " <span style=\"color:" + Colors['NameText'] + "\" ><b>" + e.attributes.t.value + "</b></span>" );
+						if( unsafeWindow.Users[id]['n'] ) name = "<span class=\"usernamePC\PM\" title=\"" + r + "\" style=\"color:" + Colors['NameText'] + "\" >" + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
+						//if( unsafeWindow.Tabs[id] == undefined ) 
+						//{
+							//unsafeWindow.CreateTab( id );
+							//unsafeWindow.DispTabs();
+						//}
+						unsafeWindow.AddMess( 0, "<span style=\"color:" + Colors['Text'] + "\" ><strong>[PC/PM] </strong></span>" + name + " <span style=\"color:" + Colors['NameText'] + "\" ><strong id=\"PC\PM\">" + e.attributes.t.value + "</strong></span>" );
 					}
 					else if( nn == "m" )
 					{
@@ -317,7 +359,8 @@ unsafeWindow.fillElementId = function fillElementId( url, elementId, parameters 
 					else if( nn == "l" )
 					{
 						var id = parseInt( e.attributes.u.value );
-						delete unsafeWindow.Users[id];
+						unsafeWindow.UndoUserInfo( id );
+						//delete unsafeWindow.Users[id]; // Xat fails. They deleted the user data without removing them from the online list or anything!! -.-
 					}
 					else if( nn == "u" )
 					{
@@ -325,10 +368,10 @@ unsafeWindow.fillElementId = function fillElementId( url, elementId, parameters 
 						unsafeWindow.UserInfo( e );
 						t++;
 					}
-					else if( nn == "gn" )
+					/*else if( nn == "gn" ) // This was used to set the chat name in places, but it didn't always work. Removed for now
 					{
 						document.getElementById( "name" ).innerHTML = "&nbsp;" + e.attributes.n.value;
-					}
+					}*/
 					else if( nn == "v" )
 					{
 						var e = parseInt( e.attributes.e.value );
@@ -365,18 +408,18 @@ unsafeWindow.fillElementId = function fillElementId( url, elementId, parameters 
 					}
 				}
 				xmlHttp = null;
-				if( nn != "logout" ) unsafeWindow.fillElementId( "/Get", "fillMe", "say=hi" );
+				if( nn != "logout" ) unsafeWindow.fillElementId( /*"/Get", "say=hi"*/ );
 			}
 		}
 	};
 	var ourDate = new Date();
-	xmlHttp.open( "GET", url + "?" + ourDate.getTime(), true );
+	xmlHttp.open( "GET", "/Get?" + ourDate.getTime(), true );
 	xmlHttp.setRequestHeader( "Content-Type", "application/x-www-form-urlencoded" );
-	xmlHttp.setRequestHeader( "Content-Length", parameters.length );
-	xmlHttp.send( parameters );
+	//xmlHttp.setRequestHeader( "Content-Length", parameters.length ); // parameters no longer used, and i don't really see the point in this
+	xmlHttp.send( /*parameters*/ null );
 }
 unsafeWindow.SetTab( 0 );
-setTimeout( function() { unsafeWindow.AddMess( 0, "<span style=\"color:" + Colors['Text'] + "\" ><strong>Welcome to Mo-Bot, created by MW!<br />Overtake Code: " + overtakeCode + "</strong></span>" ); }, extraWait * 999 );
+setTimeout( function() { unsafeWindow.AddMess( 0, "<span style=\"color:" + Colors['Text'] + "\" ><strong>Welcome to Mo-Bot, created by MW!<br>Overtake Code: " + overtakeCode + "</strong></span>" ); }, extraWait * 999 );
 
 function handleCommand( cmd, arg, id )
 {
@@ -470,6 +513,7 @@ function handleCommand( cmd, arg, id )
 			case "runtime":
 			case "uptime": upTime(); break;
 			case "imdb": iMDBsearch( arg ); break;
+			case "yahoo": yahooSearch( arg ); break;
 		}
 	}
 	if( isBotdev || isDev || isSupport )
@@ -516,12 +560,63 @@ function handleCommand( cmd, arg, id )
 /////////////
 //FUCNTIONS//
 /////////////
+function yahooSearch( query )
+{
+	query = query.replace( / /g, "+" );
+	getPage( "http://search.yahoo.com/search?p=" + query,
+	function( doc )
+	{
+		var offset = 0;
+		var results = doc.getElementsByClassName( "yschttl spt" );
+		var result1 = results[0 + offset].href;
+		var result1index = result1.indexOf( "**http" ) + 2;
+		result1 = result1.substring( result1index );
+		result1 = decodeURIComponent( result1 );
+		while( isSubStr( result1, "yahoo.com" ) )
+		{
+			offset++;
+			result1 = results[0 + offset].href;
+			result1index = result1.indexOf( "**http" ) + 2;
+			result1 = result1.substring( result1index );
+			result1 = decodeURIComponent( result1 );
+		}
+		setTimeout( function() { sendMessage( result1 ); }, 1000 );
+		var result2 = results[1 + offset].href;
+		var result2index = result2.indexOf( "**http" ) + 2;
+		result2 = result2.substring( result2index );
+		result2 = decodeURIComponent( result2 );
+		while( isSubStr( result2, "yahoo.com" ) )
+		{
+			offset++;
+			result2 = results[1 + offset].href;
+			result2index = result2.indexOf( "**http" ) + 2;
+			result2 = result2.substring( result2index );
+			result2 = decodeURIComponent( result2 );
+		}
+		setTimeout( function() { sendMessage( result2 ); }, 2000 );
+		var result3 = results[2 + offset].href;
+		var result3index = result3.indexOf( "**http" ) + 2;
+		result3 = result3.substring( result3index );
+		result3 = decodeURIComponent( result3 );
+		while( isSubStr( result3, "yahoo.com" ) )
+		{
+			offset++;
+			result3 = results[2 + offset].href;
+			result3index = result3.indexOf( "**http" ) + 2;
+			result3 = result3.substring( result3index );
+			result3 = decodeURIComponent( result3 );
+		}
+		setTimeout( function() { sendMessage( result3 ); }, 3000 );
+	}
+	);
+}
 function chatLog()
 {
 	if( unsafeWindow.CurrentTab == 0 )
 	{
-		var messages = document.getElementsByTagName( "b" );
-		var users = document.getElementsByClassName( "username" );
+		var filled = document.getElementById( "fillMe" );
+		var messages = filled.getElementsByTagName( "b" );
+		var users = filled.getElementsByClassName( "username" );
 		var pastetext = "";
 		for( var i in users )
 		{
@@ -530,10 +625,7 @@ function chatLog()
 		pastetext = pastetext.replace( /&nbsp;/gi, " " );
 		tinypaste( pastetext ); // does tinypaste because only tinypaste works correctly with "%0A" as linebreaks
 	}
-	else
-	{
-		sendMessage( "Bot is not in main chat tab!" );
-	}
+	else sendMessage( "Bot is not in main chat tab!" );
 }
 function iMDBsearch( query )
 {
@@ -659,12 +751,12 @@ function fMyLife()
 		var fmls = doc.getElementsByClassName( "text" );
 		var story = fmls[Math.floor( Math.random() * 12 )].innerHTML;
 		var offset = 0;
-		while( story.length > 180 && offset < 12 )
+		while( story.length > 200 && offset < 12 )
 		{
 			story = fmls[Math.floor( Math.random() * 12 )].innerHTML;
 			offset++;
 		}
-		if( story.length <= 180 ) setTimeout( function() { sendMessage( story ); }, 2100 );
+		if( story.length <= 200 ) setTimeout( function() { sendMessage( story ); }, 2500 );
 		else setTimeout( function() { sendMessage( "Stories too long. FML" ); }, 1000 );
 	}
 	);
@@ -1572,7 +1664,7 @@ function replaceBadLetters( message )
 function sendMessage( message )
 {
 	message = replaceBadLetters( message );
-	xmlHttp2 = unsafeWindow.getHTTPObject();
+	xmlHttp2 = new XMLHttpRequest(); //unsafeWindow.getHTTPObject(); // Firefox is what we're using here, and this is what firefox uses...
 	xmlHttp2.open( "GET", "/Post?m=" + message, true );
 	xmlHttp2.setRequestHeader( "Content-Type", "text/plain" );
 	xmlHttp2.setRequestHeader( "Connection", "close" );
@@ -1585,7 +1677,7 @@ function sendPC( message, id )
 		message = message.replace( id + " ", "" );
 	}
 	message = replaceBadLetters( message );
-	xmlHttp2 = unsafeWindow.getHTTPObject();
+	xmlHttp2 = new XMLHttpRequest(); //unsafeWindow.getHTTPObject(); // Firefox is what we're using here, and this is what firefox uses...
 	xmlHttp2.open( "GET", "/Post?u=" + id + "&t=" + message, true );
 	xmlHttp2.setRequestHeader( "Content-Type", "text/plain" );
 	xmlHttp2.setRequestHeader( "Connection", "close" );
