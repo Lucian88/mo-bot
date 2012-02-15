@@ -294,7 +294,7 @@ unsafeWindow.fillElementId = function fillElementId()
 			{
 				var e = xmlDocument.firstChild.childNodes[n];
 				nn = xmlDocument.firstChild.childNodes[n].nodeName;
-				if( nn == "p" || nn == "z" ) // z = pm , p = pc
+				if( nn == "p" || nn == "z" ) // z = pm & p = pc
 				{
 					if( e.attributes.t.value.charAt( 0 ) == "/" ) continue;
 					var id = parseInt( e.attributes.u.value );
