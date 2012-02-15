@@ -6,7 +6,7 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.4.4.0
+// @version      0.4.5.0
 // @icon         https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @icon64       https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/
@@ -33,7 +33,6 @@ var originalDate = new Date();
 var originalMilliseconds = originalDate.getTime();
 var startTime = time();
 var overtakeCode = generateOvertake();
-var lastTab = 0;
 var botDead = false;
 var scrambling = false;
 var scrambleWord = "";
@@ -134,23 +133,25 @@ function initializeUserData( id )
 				  };
 }
 
+document.getElementsByTagName( "head" )[0].innerHTML += "<link rel=\"icon\" type=\"image/gif\" href=\"https://mo-bot.googlecode.com/hg/icons/MobileIcon.gif\" />"
 document.getElementById( "body" ).bgColor = Colors['Background'];
-document.getElementById( "body" ).innerHTML = "<div id=\"fillMe\" style=\"position:relative;left:0px;width:70%;background-color:" + Colors['Background'] + ";\" ></div><div id=\"fillUser\" style=\"position:fixed;top:0px;right:0px;width:30%;text-align:right;background-color:" + Colors['Background'] + ";\" ></div><div id=\"tabs\" style=\"height:25px;background-color:" + Colors['Tab'] + ";display:none;\"></div><div id=\"name\" style=\"font-size:0px;background-color:" + Colors['Background'] + ";color:" + Colors['Background'] + ";display:none;\" ></div>";
+document.getElementById( "body" ).innerHTML = "<div id=\"fillMe\" style=\"position:relative;left:0px;width:70%;background-color:" + Colors['Background'] + ";\" ></div><div id=\"fillUser\" style=\"position:fixed;top:0px;right:0px;width:30%;text-align:right;background-color:" + Colors['Background'] + ";\" ></div><div id=\"tabs\" style=\"display:none;\"></div><div id=\"name\" style=\"display:none;\" ></div>";
 document.title = BotData.botName;
+unsafeWindow.Messages = [];
+unsafeWindow.Messages['Chat'] = "";
+unsafeWindow.Messages['Users'] = "";
 
 unsafeWindow.AddMess = function AddMess( tab, s )
 {
-	if( tab != 1 )
+	if( tab == "Chat" )
 	{
 		var curTime = time();
 		if( curTime >= startTime + extraWait )
 		{
-			var id = tab;
-			if( tab == 0 ) id = s.between( "(", ")" );
-			lastTab = tab;
 			if( isSubStr( s, "<b>" ) )
 			{
-				var msg = s.between( "<b>", "</b>" ) + " ";
+				var id = s.between( "(", ")" );
+				var msg = s.between( "<b>", "</b>" ) + " "; // the space has to be added for commands without any arguments apparently
 				if( msg.charAt( 0 ) == cmdChar )
 				{
 					var cmd = msg.substring( 1, msg.indexOf( " " ) );
@@ -159,7 +160,8 @@ unsafeWindow.AddMess = function AddMess( tab, s )
 			}
 			else if( isSubStr( s, "<strong id=\"PC\PM\">" ) )
 			{
-				var msg = s.between( "<strong id=\"PC\PM\">", "</strong>" ) + " ";
+				var id = s.between( "(", ")" );
+				var msg = s.between( "<strong id=\"PC\PM\">", "</strong>" ) + " "; // the space has to be added for commands without any arguments apparently
 				if( msg.charAt( 0 ) == cmdChar )
 				{
 					var cmd = msg.substring( 1, msg.indexOf( " " ) );
@@ -167,27 +169,26 @@ unsafeWindow.AddMess = function AddMess( tab, s )
 				}
 			}
 		}
-		else if( tab == 0 )
+		else
 		{
-			unsafeWindow.Messages[0] = "";
+			unsafeWindow.Messages['Chat'] = "";
 			s = "";
 		}
-		if( tab == -1 ) tab = 0;
-		if( s != "" ) unsafeWindow.Messages[tab] += s + "<br>";
-		if( tab == unsafeWindow.CurrentTab ) unsafeWindow.SetBox( unsafeWindow.Messages[tab] );
+		if( s != "" ) unsafeWindow.Messages['Chat'] += s + "<br>";
+		unsafeWindow.SetBox( unsafeWindow.Messages['Chat'] );
 	}
-	else if( tab == 1 )
+	else if( tab == "Users" )
 	{
 		if( s != "" )
 		{
 			var test = s.between( "<span style=\"color:" + Colors['Text'] + "\" >", "</span>" );
-			if( isSubStr( unsafeWindow.Messages[1], test.substring( 0, 9 ) ) ) // Probably not needed anymore due to how users get removed from the list on a disconnect, but will be left here for now
+			if( isSubStr( unsafeWindow.Messages['Users'], test.substring( 0, 9 ) ) ) // Probably not needed anymore due to how users get removed from the list on a disconnect, but will be left here for now
 			{
-				var toReplace = unsafeWindow.Messages[1].between( test.substring( 0, 9 ), "</span>" );
-				unsafeWindow.Messages[1] = unsafeWindow.Messages[1].replace( toReplace, test.substring( 9 ) );
+				var toReplace = unsafeWindow.Messages['Users'].between( test.substring( 0, 9 ), "</span>" );
+				unsafeWindow.Messages['Users'] = unsafeWindow.Messages['Users'].replace( toReplace, test.substring( 9 ) );
 			}
-			else unsafeWindow.Messages[1] += s + "<br>";
-			unsafeWindow.SetUserBox( unsafeWindow.Messages[1] );
+			else unsafeWindow.Messages['Users'] += s + "<br>";
+			unsafeWindow.SetUserBox( unsafeWindow.Messages['Users'] );
 		}
 	}
 }
@@ -195,7 +196,7 @@ unsafeWindow.DoMessage = function DoMessage( id, KickBan, Reason )
 {
 	var parameters = "u=" + id + "&t=" + encodeURIComponent( KickBan );
 	parameters = "p=" + encodeURIComponent( Reason ) + "&" + parameters;
-	xmlHttp2 = new XMLHttpRequest(); //unsafeWindow.getHTTPObject(); // Firefox is what we're using here, and this is what firefox uses...
+	xmlHttp2 = new XMLHttpRequest();
 	xmlHttp2.open( "GET", "/Post?" + parameters, true );
 	xmlHttp2.setRequestHeader( "Content-Type", "text/plain" );
 	xmlHttp2.setRequestHeader( "Connection", "close" );
@@ -204,31 +205,33 @@ unsafeWindow.DoMessage = function DoMessage( id, KickBan, Reason )
 unsafeWindow.BanKick = function BanKick( id, Type, Reason ) {} // Not used anymore
 unsafeWindow.Make = function Make( id, Type ) {} // Not used anymore
 unsafeWindow.DoUser = function DoUser( id ) {} // Not used anymore
+unsafeWindow.CloseTab = function CloseTab( tab ) {} // Not used anymore
+unsafeWindow.CreateTab = function CreateTab( id ) {} // Not used anymore
+unsafeWindow.DispTabs = function DispTabs() {} // Not used anymore
+unsafeWindow.DoBut = function DoBut( Action, Value ) {} // Not used anymore
+unsafeWindow.SetTab = function SetTab( tab ) {} // Not used anymore
 unsafeWindow.UserInfo = function UserInfo( node )
 {
 	if( !node.attributes.u ) return;
 	var s, id = parseInt( node.attributes.u.value );
-	//if( unsafeWindow.Users[id] == undefined )
-	//{
-		unsafeWindow.Users[id] = new Array();
-		unsafeWindow.Users[id]['n'] = "" + id;
-		unsafeWindow.Users[id]['N'] = "";
-		unsafeWindow.Users[id]['f'] = 0;
-		if( node.attributes.n ) unsafeWindow.Users[id]['n'] = node.attributes.n.value;
-		if( node.attributes.N ) unsafeWindow.Users[id]['N'] = node.attributes.N.value;
-		if( node.attributes.f ) unsafeWindow.Users[id]['f'] = parseInt( node.attributes.f.value );
-		s = "<span style=\"color:" + Colors['Text'] + "\" >";
-		s += id + " ";
-		if( unsafeWindow.Users[id]['N'] ) s += "<b>" + unsafeWindow.Users[id]['N'] + "</b> ";
-		s += unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] );
-		s += "</span>";
-		unsafeWindow.AddMess( 1, s );
-	//}
+	unsafeWindow.Users[id] = [];
+	unsafeWindow.Users[id]['n'] = "" + id;
+	unsafeWindow.Users[id]['N'] = "";
+	unsafeWindow.Users[id]['f'] = 0;
+	if( node.attributes.n ) unsafeWindow.Users[id]['n'] = node.attributes.n.value;
+	if( node.attributes.N ) unsafeWindow.Users[id]['N'] = node.attributes.N.value;
+	if( node.attributes.f ) unsafeWindow.Users[id]['f'] = parseInt( node.attributes.f.value );
+	s = "<span style=\"color:" + Colors['Text'] + "\" >";
+	s += id + " ";
+	if( unsafeWindow.Users[id]['N'] ) s += "<b>" + unsafeWindow.Users[id]['N'] + "</b> ";
+	s += unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] );
+	s += "</span>";
+	unsafeWindow.AddMess( "Users", s );
 }
 unsafeWindow.UndoUserInfo = function UndoUserInfo( id )
 {
 	if( unsafeWindow.Users[id] == undefined ) return;
-	var test = unsafeWindow.Messages[1];
+	var test = unsafeWindow.Messages['Users'];
 	var test2 = "<span style=\"color:" + Colors['Text'] + "\" >" + id + " ";
 	if( unsafeWindow.Users[id]['N'] ) test2 += "<b>" + unsafeWindow.Users[id]['N'] + "</b> ";
 	test2 += unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + "</span><br>";
@@ -236,25 +239,8 @@ unsafeWindow.UndoUserInfo = function UndoUserInfo( id )
 	{
 		test = test.replace( test2, "" );
 	}
-	unsafeWindow.Messages[1] = test;
-	unsafeWindow.SetUserBox( unsafeWindow.Messages[1] );
-}
-unsafeWindow.DispTabs = function DispTabs()
-{
-	/*var Div = document.getElementById( "tabs" );
-	var t = "<table class=\"xtable\"><tr>";
-	for( var n in unsafeWindow.Tabs )
-	{
-		var b1 = b2 = "";
-		if( n == -1 || n == 1 ) continue;
-		if( n == unsafeWindow.CurrentTab ) 
-		{ 
-			b1 = "<B>";
-			b2= "</B>"; 
-		} 
-		t += "<td style=\"background-color:" + Colors['Tab'] + ";color:" + Colors['TabText'] + "\" onclick=\"SetTab(" + n + ")\">" + b1 + unsafeWindow.Tabs[n] + b2 + "</td>";
-	}
-	Div.innerHTML = t + "</tr></table>";*/
+	unsafeWindow.Messages['Users'] = test;
+	unsafeWindow.SetUserBox( unsafeWindow.Messages['Users'] );
 }
 unsafeWindow.SetBox = function SetBox( s )
 {
@@ -263,7 +249,7 @@ unsafeWindow.SetBox = function SetBox( s )
 	if( curTime >= startTime + extraWait )
 	{
 		Div.innerHTML = s;
-		window.scrollTo( 0, Div.scrollHeight);
+		window.scrollTo( 0, Div.scrollHeight );
 	}
 	else Div.innerHTML = "";
 }
@@ -292,142 +278,144 @@ unsafeWindow.StripSmilies = function StripSmilies( s )
 	if( max > 10 ) max = 10;
 	return s2.substr( 0, max );
 }
-unsafeWindow.fillElementId = function fillElementId( /*url, elementId, parameters*/ ) // elementId was never used, so removed, parameters weren't really used, and url was totally not needed
+unsafeWindow.fillElementId = function fillElementId()
 {
-	//parameters = encodeURIComponent( parameters ); // parameters no longer used
-	xmlHttp = new XMLHttpRequest(); //unsafeWindow.getHTTPObject(); // Firefox is what we're using here, and this is what firefox uses...
+	xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function()
 	{
-		if( xmlHttp.readyState == 4 )
+		if( xmlHttp.readyState == 4 && xmlHttp.status == 200 )
 		{
-			if( xmlHttp.status == 200 )
+			var test = xmlHttp.responseText;     // This (somewhat) fixes the issue with PHP bots messing up Xat Mobile
+			test = test.replace( /i="0"/g, "" ); // They send a duplicate "i" node in their messages which causes mobile to not parse properly
+			var parser = new DOMParser();        // This _would_ fix bots making users not show up in mobile, but this function isn't replaced fast enough
+			var xmlDocument = parser.parseFromString( test, "text/xml" );
+			var nn = "";
+			for( var n = 0; n < xmlDocument.firstChild.childNodes.length; n++ )
 			{
-				var nn = "";
-				for( var n = 0; n < xmlHttp.responseXML.firstChild.childNodes.length; n++ )
+				var e = xmlDocument.firstChild.childNodes[n];
+				nn = xmlDocument.firstChild.childNodes[n].nodeName;
+				if( nn == "p" || nn == "z" ) // z = pm , p = pc
 				{
-					var e = xmlHttp.responseXML.firstChild.childNodes[n];
-					nn = xmlHttp.responseXML.firstChild.childNodes[n].nodeName;
-					if( nn == "p" || nn == "z" )
+					if( e.attributes.t.value.charAt( 0 ) == "/" ) continue;
+					var id = parseInt( e.attributes.u.value );
+					var name = "";
+					var r = id;
+					if( unsafeWindow.Users[id] == undefined ) 
 					{
-						if( e.attributes.t.value.charAt( 0 ) == "/" ) continue;
-						var id = parseInt( e.attributes.u.value );
-						var name = "";
-						var r = id;
-						if( unsafeWindow.Users[id] == undefined ) 
-						{
-							if( nn == "z" ) unsafeWindow.UserInfo( e );
-							else continue;
-						}
-						if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + " (" + id + ")";
-						if( unsafeWindow.Users[id]['n'] ) name = "<span class=\"usernamePC\PM\" title=\"" + r + "\" style=\"color:" + Colors['NameText'] + "\" >" + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
-						//if( unsafeWindow.Tabs[id] == undefined ) 
-						//{
-							//unsafeWindow.CreateTab( id );
-							//unsafeWindow.DispTabs();
-						//}
-						unsafeWindow.AddMess( 0, "<span style=\"color:" + Colors['Text'] + "\" ><strong>[PC/PM] </strong></span>" + name + " <span style=\"color:" + Colors['NameText'] + "\" ><strong id=\"PC\PM\">" + e.attributes.t.value + "</strong></span>" );
+						if( nn == "z" ) unsafeWindow.UserInfo( e );
+						else continue;
 					}
-					else if( nn == "m" )
+					if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + " (" + id + ")";
+					if( unsafeWindow.Users[id]['n'] ) name = "<span class=\"usernamePC\PM\" title=\"" + r + "\" style=\"color:" + Colors['NameText'] + "\" >" + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
+					unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>[PC/PM] </strong></span>" + name + " <span style=\"color:" + Colors['NameText'] + "\" ><strong id=\"PC\PM\">" + e.attributes.t.value + "</strong></span>" );
+				}
+				else if( nn == "m" ) // main chat message
+				{
+					var t = e.attributes.t.value;
+					if( t.charAt( 0 ) == "/" )
 					{
-						if( unsafeWindow.ShowUsers ) 
-						{
-							unsafeWindow.ShowUsers = 0;
-							unsafeWindow.SetTab( 0 );
-						}
-						var t = e.attributes.t.value;
-						if( t.charAt( 0 ) == "/" )
-						{
-							var y = t.charAt( 1 );
-							var derp = t.charAt( 2 );
-							if( y != "g" && y != "k" && y != "u" ) continue;
-							var d = parseInt( e.attributes.d.value );
-							if( unsafeWindow.Users[d] == undefined ) continue;
-							if( y == "g" && derp != "m" ) t = "I have banned " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] ) + " for " + ( parseInt( t.substr( 2 ) ) / 3600 ) + " hours.";
-							else if( y == "g" && derp == "m" ) t = "I have muted " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] ) + " for " + ( parseInt( t.substr( 3 ) ) / 3600 ) + " hours.";
-							else if( y == "k" ) t = "I have kicked " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] );
-							else if( y == "u" ) t = "I have unbanned " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] );
-							else continue;
-						}
-						var id = parseInt( e.attributes.u.value );
-						if( unsafeWindow.Users[id] == undefined ) continue;
-						var name = "";
-						var r = id;
-						if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + " (" + id + ")";
-						if( unsafeWindow.Users[id]['n'] ) name = "<span class=\"username\" title=\"" + r + "\" style=\"color:" + Colors['NameText'] + "\" >" + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
-						unsafeWindow.AddMess( 0, name + " <span style=\"color:" + Colors['NameText'] + "\" ><b>" + t + "</b></span>" );
+						var y = t.charAt( 1 );
+						var derp = t.charAt( 2 );
+						if( y != "g" && y != "k" && y != "u" ) continue;
+						var d = parseInt( e.attributes.d.value );
+						if( unsafeWindow.Users[d] == undefined ) continue;
+						if( y == "g" && derp != "m" ) t = "I have banned " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] ) + " for " + ( parseInt( t.substr( 2 ) ) / 3600 ) + " hours.";
+						else if( y == "g" && derp == "m" ) t = "I have muted " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] ) + " for " + ( parseInt( t.substr( 3 ) ) / 3600 ) + " hours.";
+						else if( y == "k" ) t = "I have kicked " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] );
+						else if( y == "u" ) t = "I have unbanned " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] );
+						else continue;
 					}
-					else if( nn == "l" )
+					var id = parseInt( e.attributes.u.value );
+					if( unsafeWindow.Users[id] == undefined ) continue;
+					var name = "";
+					var r = id;
+					if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + " (" + id + ")";
+					if( unsafeWindow.Users[id]['n'] ) name = "<span class=\"username\" title=\"" + r + "\" style=\"color:" + Colors['NameText'] + "\" >" + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
+					unsafeWindow.AddMess( "Chat", name + " <span style=\"color:" + Colors['NameText'] + "\" ><b>" + t + "</b></span>" );
+				}
+				else if( nn == "l" ) // User logs out
+				{
+					var id = parseInt( e.attributes.u.value );
+					unsafeWindow.UndoUserInfo( id );
+				}
+				else if( nn == "u" ) // User connects
+				{
+					var t = 1;
+					unsafeWindow.UserInfo( e );
+					t++;
+				}
+				/*
+				else if( nn == "gn" ) // This was used to set the chat name in places, but it didn't always work. Removed for now
+				{
+					document.getElementById( "name" ).innerHTML = "&nbsp;" + e.attributes.n.value;
+				}
+				*/
+				else if( nn == "v" ) // Xat error of some sort
+				{
+					var e = parseInt( e.attributes.e.value );
+					if( e == 1 )
 					{
-						var id = parseInt( e.attributes.u.value );
-						unsafeWindow.UndoUserInfo( id );
-						//delete unsafeWindow.Users[id]; // Xat fails. They deleted the user data without removing them from the online list or anything!! -.-
-					}
-					else if( nn == "u" )
-					{
-						var t = 1;
-						unsafeWindow.UserInfo( e );
-						t++;
-					}
-					/*else if( nn == "gn" ) // This was used to set the chat name in places, but it didn't always work. Removed for now
-					{
-						document.getElementById( "name" ).innerHTML = "&nbsp;" + e.attributes.n.value;
-					}*/
-					else if( nn == "v" )
-					{
-						var e = parseInt( e.attributes.e.value );
-						if( e == 1 )
-						{
-							unsafeWindow.AddMess( unsafeWindow.CurrentTab, "<span style=\"color:" + Colors['Text'] + "\" ><strong>You have been logged out!</strong></span>" );
-							reboot();
-							nn = "logout";
-						} 
-						else if( e == 8 )
-						{
-							unsafeWindow.AddMess( unsafeWindow.CurrentTab, "<span style=\"color:" + Colors['Text'] + "\" ><strong>Bad password!</strong></span>" );
-							nn = "logout";
-						}
-						else if( e == 6 )
-						{
-							unsafeWindow.AddMess( unsafeWindow.CurrentTab, "<span style=\"color:" + Colors['Text'] + "\" ><strong>Bad user name!</strong></span>" );
-							reboot( true );
-							nn = "logout";
-						}		
-						else				
-						{
-							unsafeWindow.AddMess( unsafeWindow.CurrentTab, "<span style=\"color:" + Colors['Text'] + "\" ><strong>Error Z" + e + "</strong></span>" );
-							reboot();
-							nn = "logout";
-						}		
-						break;
-					}
-					else if( nn == "logout" )
-					{
-						unsafeWindow.AddMess(unsafeWindow.CurrentTab, "<span style=\"color:" + Colors['Text'] + "\" ><strong>You have been logged out!</strong></span>" );
+						unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>You have been logged out!</strong></span>" );
 						reboot();
-						break;
+						nn = "logout";
+					} 
+					else if( e == 8 )
+					{
+						unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>Bad password!</strong></span>" );
+						nn = "logout";
 					}
+					else if( e == 6 )
+					{
+						unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>Bad user name!</strong></span>" );
+						reboot( true );
+						nn = "logout";
+					}		
+					else				
+					{
+						unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>Error Z" + e + "</strong></span>" );
+						reboot();
+						nn = "logout";
+					}		
+					break;
+				}
+				else if( nn == "logout" )
+				{
+					unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>You have been logged out!</strong></span>" );
+					reboot();
+					break;
 				}
 				xmlHttp = null;
-				if( nn != "logout" ) unsafeWindow.fillElementId( /*"/Get", "say=hi"*/ );
+				if( nn != "logout" ) unsafeWindow.fillElementId();
 			}
 		}
 	};
 	var ourDate = new Date();
 	xmlHttp.open( "GET", "/Get?" + ourDate.getTime(), true );
 	xmlHttp.setRequestHeader( "Content-Type", "application/x-www-form-urlencoded" );
-	//xmlHttp.setRequestHeader( "Content-Length", parameters.length ); // parameters no longer used, and i don't really see the point in this
-	xmlHttp.send( /*parameters*/ null );
+	xmlHttp.send( null );
 }
-unsafeWindow.SetTab( 0 );
-setTimeout( function() { unsafeWindow.AddMess( 0, "<span style=\"color:" + Colors['Text'] + "\" ><strong>Welcome to Mo-Bot, created by MW!<br>Overtake Code: " + overtakeCode + "</strong></span>" ); }, extraWait * 999 );
+setTimeout( function()
+{
+	unsafeWindow.OldTab = undefined; // Not used anymore
+	unsafeWindow.ShowUsers = undefined; // Not used anymore
+	unsafeWindow.Tabs = undefined; // Not used anymore
+	unsafeWindow.myWidth = undefined; // What the hell were they thinking? This is never used anywhere at ALL!!
+	unsafeWindow.myHeight = undefined; // What the hell were they thinking? This is never used anywhere at ALL!!
+	unsafeWindow.Active = undefined; // Not used anymore
+	unsafeWindow.Ignore = undefined; // Not used anymore
+	unsafeWindow.t = undefined; // What the hell were they thinking? This is never used anywhere at ALL!!
+	unsafeWindow.PrevMsg = undefined; // Not used anymore
+	unsafeWindow.cnt = undefined; // What the hell were they thinking? This is never used anywhere at ALL!!
+}, 500 );
+setTimeout( function() { unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>Welcome to Mo-Bot, created by MW!<br>Overtake Code: " + overtakeCode + "</strong></span>" ); }, extraWait * 999.9 );
 
 function handleCommand( cmd, arg, id )
 {
 	cmd = cmd.toLowerCase();
 	var isBanned = isSubStr( BotData.banneds, id );
 	if( isBanned ) return;
-	arg = arg.substring( 0, arg.length - 1 );
-	args = arg.split( " " );
+	arg = arg.substring( 0, arg.length - 1 ); // Removes extra space added to message. Fixes crypto() not hashing correct thing
+	var args = arg.split( " " );
 	var isBotdev = isSubStr( BotData.botdevs, id );
 	var isDev = isSubStr( BotData.devs, id );
 	var isSupport = isSubStr( BotData.supports, id );
@@ -612,20 +600,16 @@ function yahooSearch( query )
 }
 function chatLog()
 {
-	if( unsafeWindow.CurrentTab == 0 )
+	var filled = document.getElementById( "fillMe" );
+	var messages = filled.getElementsByTagName( "b" );
+	var users = filled.getElementsByClassName( "username" );
+	var pastetext = "";
+	for( var i in users )
 	{
-		var filled = document.getElementById( "fillMe" );
-		var messages = filled.getElementsByTagName( "b" );
-		var users = filled.getElementsByClassName( "username" );
-		var pastetext = "";
-		for( var i in users )
-		{
-			pastetext += users[i].innerHTML + messages[i].innerHTML + "%0A";
-		}
-		pastetext = pastetext.replace( /&nbsp;/gi, " " );
-		tinypaste( pastetext ); // does tinypaste because only tinypaste works correctly with "%0A" as linebreaks
+		pastetext += users[i].innerHTML + messages[i].innerHTML + "%0A";
 	}
-	else sendMessage( "Bot is not in main chat tab!" );
+	pastetext = pastetext.replace( /&nbsp;/gi, " " );
+	tinypaste( pastetext ); // does tinypaste because only tinypaste works correctly with "%0A" as linebreaks
 }
 function iMDBsearch( query )
 {
@@ -932,7 +916,7 @@ function googleTranslate( text, language )
 	}
 	);
 }
-function kdepaste( pastetext ) // Uses "POST" so getPage isn't going to work, plus it has weird arguments and st00f
+function kdepaste( pastetext )
 {
 	setTimeout( function()
 	{
@@ -960,7 +944,7 @@ function kdepaste( pastetext ) // Uses "POST" so getPage isn't going to work, pl
 		);
 	}, 1 );
 }
-function pastebin( pastetext ) // Uses "POST" so getPage isn't going to work, plus it has weird arguments and st00f
+function pastebin( pastetext )
 {
 	setTimeout( function()
 	{
@@ -1557,16 +1541,8 @@ function away()
 function respond( message, id )
 {
 	var isDev = isSubStr( BotData.devs, id ) || isSubStr( BotData.botdevs, id );
-	if( lastTab == 0 )
-	{
-		if( ( message.charAt( 0 ) == "/" || message.charAt( 0 ) == "!" ) && !isDev ) sendMessage( "Cannot send a message that uses / or ! !" ); // prevent ! from being used to exploit other bots that this bot has a rank on
-		else sendMessage( message );
-	}
-	else
-	{
-		if( isDev ) sendMessage( message );
-		else sendMessage( "[" + id + "] " + message );
-	}
+	if( ( message.charAt( 0 ) == "/" || message.charAt( 0 ) == "!" ) && !isDev ) sendMessage( "Cannot send a message that uses / or ! !" ); // prevent ! from being used to exploit other bots that this bot has a rank on
+	else sendMessage( message );
 }
 
 //Replaces letters that xat mobile doesn't like.
@@ -1664,7 +1640,7 @@ function replaceBadLetters( message )
 function sendMessage( message )
 {
 	message = replaceBadLetters( message );
-	xmlHttp2 = new XMLHttpRequest(); //unsafeWindow.getHTTPObject(); // Firefox is what we're using here, and this is what firefox uses...
+	xmlHttp2 = new XMLHttpRequest();
 	xmlHttp2.open( "GET", "/Post?m=" + message, true );
 	xmlHttp2.setRequestHeader( "Content-Type", "text/plain" );
 	xmlHttp2.setRequestHeader( "Connection", "close" );
@@ -1677,7 +1653,7 @@ function sendPC( message, id )
 		message = message.replace( id + " ", "" );
 	}
 	message = replaceBadLetters( message );
-	xmlHttp2 = new XMLHttpRequest(); //unsafeWindow.getHTTPObject(); // Firefox is what we're using here, and this is what firefox uses...
+	xmlHttp2 = new XMLHttpRequest();
 	xmlHttp2.open( "GET", "/Post?u=" + id + "&t=" + message, true );
 	xmlHttp2.setRequestHeader( "Content-Type", "text/plain" );
 	xmlHttp2.setRequestHeader( "Connection", "close" );
