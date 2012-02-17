@@ -6,11 +6,12 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.4.5.0
+// @version      0.4.6.0
 // @icon         https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @icon64       https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/
 // @require      https://mo-bot.googlecode.com/hg/mo-bot.utils.js
+// @require      https://mo-bot.googlecode.com/hg/jquery-1.7.1.js
 // @updateURL    https://mo-bot.googlecode.com/hg/mo-bot.meta.js
 // ==/UserScript==
 
@@ -133,9 +134,12 @@ function initializeUserData( id )
 				  };
 }
 
-document.getElementsByTagName( "head" )[0].innerHTML += "<link rel=\"icon\" type=\"image/gif\" href=\"https://mo-bot.googlecode.com/hg/icons/MobileIcon.gif\" />"
+document.getElementsByTagName( "head" )[0].innerHTML += "<link rel=\"icon\" type=\"image/gif\" href=\"https://mo-bot.googlecode.com/hg/icons/MobileIcon.gif\" />";
 document.getElementById( "body" ).bgColor = Colors['Background'];
-document.getElementById( "body" ).innerHTML = "<div id=\"fillMe\" style=\"position:relative;left:0px;width:70%;background-color:" + Colors['Background'] + ";\" ></div><div id=\"fillUser\" style=\"position:fixed;top:0px;right:0px;width:30%;text-align:right;background-color:" + Colors['Background'] + ";\" ></div><div id=\"tabs\" style=\"display:none;\"></div><div id=\"name\" style=\"display:none;\" ></div>";
+document.getElementById( "body" ).innerHTML = "<div id=\"fillMe\" style=\"position:relative;left:0px;width:70%;height:100%;padding-bottom:25px;background-color:" + Colors['Background'] + ";\" ></div>";
+document.getElementById( "body" ).innerHTML += "<div id=\"fillUser\" style=\"position:fixed;top:0px;right:0px;width:30%;text-align:right;background-color:" + Colors['Background'] + ";\" ></div>";
+document.getElementById( "body" ).innerHTML += "<div><input type=\"text\" style=\"position:fixed;bottom:0px;width:100%;\" id=\"msg\" value=\"\"></div>";
+document.getElementById( "body" ).innerHTML += "<div id=\"tabs\" style=\"display:none;\"></div><div id=\"name\" style=\"display:none;\" ></div>"; // Makes script not freeze in case original xat mobile tries to fill an element with those IDs
 document.title = BotData.botName;
 unsafeWindow.Messages = [];
 unsafeWindow.Messages['Chat'] = "";
@@ -198,9 +202,7 @@ unsafeWindow.DoMessage = function DoMessage( id, KickBan, Reason )
 	parameters = "p=" + encodeURIComponent( Reason ) + "&" + parameters;
 	xmlHttp2 = new XMLHttpRequest();
 	xmlHttp2.open( "GET", "/Post?" + parameters, true );
-	xmlHttp2.setRequestHeader( "Content-Type", "text/plain" );
-	xmlHttp2.setRequestHeader( "Connection", "close" );
-	xmlHttp2.send( parameters );
+	xmlHttp2.send();
 }
 unsafeWindow.BanKick = function BanKick( id, Type, Reason ) {} // Not used anymore
 unsafeWindow.Make = function Make( id, Type ) {} // Not used anymore
@@ -249,7 +251,7 @@ unsafeWindow.SetBox = function SetBox( s )
 	if( curTime >= startTime + extraWait )
 	{
 		Div.innerHTML = s;
-		window.scrollTo( 0, Div.scrollHeight );
+		window.scrollTo( 0, Div.offsetHeight );
 	}
 	else Div.innerHTML = "";
 }
@@ -293,18 +295,18 @@ unsafeWindow.fillElementId = function fillElementId()
 			for( var n = 0; n < xmlDocument.firstChild.childNodes.length; n++ )
 			{
 				var e = xmlDocument.firstChild.childNodes[n];
-				nn = xmlDocument.firstChild.childNodes[n].nodeName;
+				nn = e.nodeName;
 				if( nn == "p" || nn == "z" ) // z = pm & p = pc
 				{
 					if( e.attributes.t.value.charAt( 0 ) == "/" ) continue;
 					var id = parseInt( e.attributes.u.value );
 					var name = "";
 					var r = id;
-					if( unsafeWindow.Users[id] == undefined ) 
-					{
-						if( nn == "z" ) unsafeWindow.UserInfo( e );
-						else continue;
-					}
+					if( unsafeWindow.Users[id] == undefined ) unsafeWindow.UserInfo( e );
+					//{
+					//	if( nn == "z" ) 
+					//	else continue;
+					//}
 					if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + " (" + id + ")";
 					if( unsafeWindow.Users[id]['n'] ) name = "<span class=\"usernamePC\PM\" title=\"" + r + "\" style=\"color:" + Colors['NameText'] + "\" >" + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
 					unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>[PC/PM] </strong></span>" + name + " <span style=\"color:" + Colors['NameText'] + "\" ><strong id=\"PC\PM\">" + e.attributes.t.value + "</strong></span>" );
@@ -326,10 +328,11 @@ unsafeWindow.fillElementId = function fillElementId()
 						else continue;
 					}
 					var id = parseInt( e.attributes.u.value );
-					if( unsafeWindow.Users[id] == undefined ) continue;
+					if( unsafeWindow.Users[id] == undefined ) unsafeWindow.UserInfo( e ); //continue;
 					var name = "";
 					var r = id;
 					if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + " (" + id + ")";
+					else r = "(" + id + ")";
 					if( unsafeWindow.Users[id]['n'] ) name = "<span class=\"username\" title=\"" + r + "\" style=\"color:" + Colors['NameText'] + "\" >" + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
 					unsafeWindow.AddMess( "Chat", name + " <span style=\"color:" + Colors['NameText'] + "\" ><b>" + t + "</b></span>" );
 				}
@@ -391,8 +394,7 @@ unsafeWindow.fillElementId = function fillElementId()
 	};
 	var ourDate = new Date();
 	xmlHttp.open( "GET", "/Get?" + ourDate.getTime(), true );
-	xmlHttp.setRequestHeader( "Content-Type", "application/x-www-form-urlencoded" );
-	xmlHttp.send( null );
+	xmlHttp.send();
 }
 setTimeout( function()
 {
@@ -1642,9 +1644,7 @@ function sendMessage( message )
 	message = replaceBadLetters( message );
 	xmlHttp2 = new XMLHttpRequest();
 	xmlHttp2.open( "GET", "/Post?m=" + message, true );
-	xmlHttp2.setRequestHeader( "Content-Type", "text/plain" );
-	xmlHttp2.setRequestHeader( "Connection", "close" );
-	xmlHttp2.send( null );
+	xmlHttp2.send();
 }
 function sendPC( message, id )
 {
@@ -1655,7 +1655,42 @@ function sendPC( message, id )
 	message = replaceBadLetters( message );
 	xmlHttp2 = new XMLHttpRequest();
 	xmlHttp2.open( "GET", "/Post?u=" + id + "&t=" + message, true );
-	xmlHttp2.setRequestHeader( "Content-Type", "text/plain" );
-	xmlHttp2.setRequestHeader( "Connection", "close" );
-	xmlHttp2.send( null );
+	xmlHttp2.send();
 }
+
+function enterPressed( evn )
+{
+	var box = document.getElementById( "msg" );
+	var jqbox = jQuery("#msg");
+	var msg = box.value;
+	var id = BotData.botID;
+	if( ( window.event && window.event.keyCode == 13 ) || ( evn && evn.keyCode == 13 ) )
+	{
+		if( document.activeElement != box )
+		{
+			jqbox.fadeIn( 500 );
+			box.focus();
+		}
+		else
+		{
+			if( msg == "" )
+			{
+				box.blur();
+				jqbox.fadeOut( 500 );
+			}
+			else if( msg.charAt( 0 ) == cmdChar )
+			{
+				msg += " ";
+				var cmd = msg.substring( 1, msg.indexOf( " " ) );
+				handleCommand( cmd, msg.substring( msg.indexOf( " " ) + 1 ), id );
+				box.value = "";
+			}
+			else
+			{
+				sendMessage( msg );
+				box.value = "";
+			}
+		}
+	}
+}
+document.onkeypress = enterPressed;
