@@ -10,7 +10,6 @@
 	// Insert the variables here.
 	var regname = "INSERT REGNAME HERE";
 	var group = "INSERT GROUP NAME HERE";
-	var groupid = "INSERT GROUP ID HERE"; // Group ID is found in "View Source" of the xat.com/GROUPNAME page. Do a CTRL+F search for "&p=0&id=" (no quotes) and the id will be the number after id=
 	var password = "INSERT PASSWORD HERE";
 
 	// Xat's password conversion when you log-in
@@ -28,8 +27,8 @@
 
 	var myForm = document.createElement( "form" );
 	myForm.method = "post";
-	var p = { n : regname, gid : groupid, g : group, t : password };
-	myForm.action =  "http://m.xat.com:10049/Index";
+	var p = { Group : group, YourEmail : regname, pass : password };
+	myForm.action = "http://m.xat.com/";
 	for( var k in p )
 	{
 		var myInput = document.createElement( "input" );

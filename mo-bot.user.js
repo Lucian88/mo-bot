@@ -6,7 +6,7 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.4.6.0
+// @version      0.4.6.1
 // @icon         https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @icon64       https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/
@@ -28,11 +28,11 @@
  */
 
 
+jQuery.noConflict(); // I don't use the $ var. I don't like it.
 var cmdChar = "!";
 var extraWait = 2;
-var originalDate = new Date();
-var originalMilliseconds = originalDate.getTime();
-var startTime = time();
+var startMilliseconds = jQuery.now();
+var startSeconds = startMilliseconds / 1000;
 var overtakeCode = generateOvertake();
 var botDead = false;
 var scrambling = false;
@@ -84,48 +84,21 @@ var factcore = ["Rats cannot throw up.","Honey does not spoil.","The billionth d
 
 function reboot( normalID )
 {
-	var chat = BotData.currentChat.toLowerCase();
-	if( chat != "wick3d" && chat != "mwisbest" && chat != "moabster" && chat != "conj" )
+	var myForm = document.createElement( "form" );
+	myForm.method = "post";
+	if( normalID ) var p = { Group : BotData.currentChat, YourEmail : BotData.botRegname, pass : BotData.botPass };
+	else var p = { Group : BotData.currentChat, YourEmail : BotData.botName, pass : BotData.botPass };
+	myForm.action = "http://m.xat.com/";
+	for( var k in p )
 	{
-		sendMessage( "Unknown chat!" );
-		return;
+		var myInput = document.createElement( "input" );
+		myInput.setAttribute( "name", k );
+		myInput.setAttribute( "value", p[k] );
+		myForm.appendChild( myInput );
 	}
-	else
-	{
-		var myForm = document.createElement( "form" );
-		myForm.method = "post";
-		if( chat == "mwisbest" )
-		{
-			if( normalID ) var p = { n : BotData.botRegname, gid : "113269290", g : "mwisbest", t : BotData.botPass };
-			else var p = { n : BotData.botName, gid : "113269290", g : "mwisbest", t : BotData.botPass };
-		}
-		else if( chat == "wick3d" )
-		{
-			if( normalID ) var p = { n : BotData.botRegname, gid : "122966601", g : "wick3d", t : BotData.botPass };
-			else var p = { n : BotData.botName, gid : "122966601", g : "wick3d", t : BotData.botPass };
-		}
-		else if( chat == "moabster" )
-		{
-			if( normalID ) var p = { n : BotData.botRegname, gid : "165673541", g : "moabster", t : BotData.botPass };
-			else var p = { n : BotData.botName, gid : "165673541", g : "moabster", t : BotData.botPass };
-		}
-		else if( chat == "conj" )
-		{
-			if( normalID ) var p = { n : BotData.botRegname, gid : "140496130", g : "conj", t : BotData.botPass };
-			else var p = { n : BotData.botName, gid : "140496130", g : "conj", t : BotData.botPass };
-		}
-		myForm.action = "http://m.xat.com:10049/Index";
-		for( var k in p )
-		{
-			var myInput = document.createElement( "input" );
-			myInput.setAttribute( "name", k );
-			myInput.setAttribute( "value", p[k] );
-			myForm.appendChild( myInput );
-		}
-		document.body.appendChild( myForm );
-		myForm.submit();
-		document.body.removeChild( myForm );
-	}
+	document.body.appendChild( myForm );
+	myForm.submit();
+	document.body.removeChild( myForm );
 }
 function initializeUserData( id )
 {
@@ -140,7 +113,7 @@ document.getElementById( "body" ).innerHTML = "<div id=\"fillMe\" style=\"positi
 document.getElementById( "body" ).innerHTML += "<div id=\"fillUser\" style=\"position:fixed;top:0px;right:0px;width:30%;text-align:right;background-color:" + Colors['Background'] + ";\" ></div>";
 document.getElementById( "body" ).innerHTML += "<div><input type=\"text\" style=\"position:fixed;bottom:0px;width:100%;\" id=\"msg\" value=\"\"></div>";
 document.getElementById( "body" ).innerHTML += "<div id=\"tabs\" style=\"display:none;\"></div><div id=\"name\" style=\"display:none;\" ></div>"; // Makes script not freeze in case original xat mobile tries to fill an element with those IDs
-document.title = BotData.botName;
+document.title = "Mo-Bot @" + BotData.currentChat;
 unsafeWindow.Messages = [];
 unsafeWindow.Messages['Chat'] = "";
 unsafeWindow.Messages['Users'] = "";
@@ -149,8 +122,8 @@ unsafeWindow.AddMess = function AddMess( tab, s )
 {
 	if( tab == "Chat" )
 	{
-		var curTime = time();
-		if( curTime >= startTime + extraWait )
+		var curSeconds = jQuery.now() / 1000;
+		if( curSeconds >= startSeconds + extraWait )
 		{
 			if( isSubStr( s, "<b>" ) )
 			{
@@ -247,8 +220,8 @@ unsafeWindow.UndoUserInfo = function UndoUserInfo( id )
 unsafeWindow.SetBox = function SetBox( s )
 {
 	var Div = document.getElementById( "fillMe" );
-	var curTime = time();
-	if( curTime >= startTime + extraWait )
+	var curSeconds = jQuery.now() / 1000;
+	if( curSeconds >= startSeconds + extraWait )
 	{
 		Div.innerHTML = s;
 		window.scrollTo( 0, Div.offsetHeight );
@@ -637,9 +610,8 @@ function iMDBsearch( query )
 }
 function upTime()
 {
-	var currentDate = new Date();
-	var currentMilliseconds = currentDate.getTime();
-	var uptimeMilliseconds = currentMilliseconds - originalMilliseconds;
+	var currentMilliseconds = jQuery.now();
+	var uptimeMilliseconds = currentMilliseconds - startMilliseconds;
 	var hours = Math.floor( uptimeMilliseconds / 3600000 );
 	var minutes = Math.floor( uptimeMilliseconds / 60000 );
 	var seconds = Math.floor( uptimeMilliseconds / 1000 );
@@ -1247,12 +1219,6 @@ function overtake( code, id )
 	var isBotdev = isSubStr( BotData.botdevs, id );
 	if( code == overtakeCode )
 	{
-		var chat = BotData.currentChat.toLowerCase();
-		if( chat != "wick3d" && chat != "mwisbest" && chat != "moabster" && chat != "conj" )
-		{
-			sendMessage( "Unknown chat!" );
-			return;
-		}
 		if( isBotdev )
 		{
 			BotData.devs = " ";
@@ -1660,35 +1626,32 @@ function sendPC( message, id )
 
 function enterPressed( evn )
 {
-	var box = document.getElementById( "msg" );
-	var jqbox = jQuery("#msg");
-	var msg = box.value;
+	var jqbox = jQuery( "#msg" );
+	var msg = jqbox.val();
 	var id = BotData.botID;
 	if( ( window.event && window.event.keyCode == 13 ) || ( evn && evn.keyCode == 13 ) )
 	{
-		if( document.activeElement != box )
+		if( document.activeElement != document.getElementById( "msg" ) )
 		{
-			jqbox.fadeIn( 500 );
-			box.focus();
+			jqbox.fadeIn( 500 ).focus();
 		}
 		else
 		{
 			if( msg == "" )
 			{
-				box.blur();
-				jqbox.fadeOut( 500 );
+				jqbox.blur().fadeOut( 500 );
 			}
 			else if( msg.charAt( 0 ) == cmdChar )
 			{
 				msg += " ";
 				var cmd = msg.substring( 1, msg.indexOf( " " ) );
 				handleCommand( cmd, msg.substring( msg.indexOf( " " ) + 1 ), id );
-				box.value = "";
+				jqbox.val( "" );
 			}
 			else
 			{
 				sendMessage( msg );
-				box.value = "";
+				jqbox.val( "" );
 			}
 		}
 	}

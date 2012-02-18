@@ -78,7 +78,7 @@ function calcPass( password )
 	password = crc ^ ( -1 );
 	return password;
 }
-function time()
+function time() // No longer used. Use "jQuery.now() / 1000" instead.
 {
 	return Math.round( ( new Date() ).getTime() / 1000 );	
 }
