@@ -102,6 +102,15 @@ function generateOvertake()
 	return str;
 }
 
+function createHtmlDoc( input ) // sliced out from getPage so that I can use this separately with jQuery AJAX
+{
+	var dt = document.implementation.createDocumentType( "html", "-//W3C//DTD HTML 4.01 Transitional//EN", "http://www.w3.org/TR/html4/loose.dtd" ),
+	doc = document.implementation.createDocument( "", "", dt ),
+	html = doc.createElement( "html" );
+	html.innerHTML = input;
+	doc.appendChild( html );
+	return doc;
+}
 function GM_XHR() // Going to replace getPage with this so i can use jQuery's goodies of AJAX
 {
 	this.type = null;
