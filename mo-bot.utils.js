@@ -188,6 +188,7 @@ function GM_XHR() // Going to replace getPage with this so i can use jQuery's go
 
 jQuery.ajaxSetup(
 {
-    xhr: function() { return new GM_XHR; }
+	xhr: function() { return new GM_XHR; },
+	dataType: "text"
 }
 );

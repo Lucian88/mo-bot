@@ -1,4 +1,4 @@
-// Utility functions for Mo-Bot :)
+// Mo-Bot Utilities 1.0.0
 String.prototype.between = function( prefix, suffix )
 {
 	s = this;
