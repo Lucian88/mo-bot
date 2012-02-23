@@ -6,7 +6,7 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.5.0.0
+// @version      0.5.0.1
 // @icon         https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @icon64       https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/
@@ -1536,6 +1536,7 @@ function replaceBadLetters( message )
 	message = message.replace( /%C3%A4/g, "a" ); // replace accented a
 
 	message = message.replace( /%C4%87/g, "c" ); // replace accented c
+	message = message.replace( /%C3$A7/g, "c" ); // replace accented c
 
 	message = message.replace( /%C3%88/g, "E" ); // replace accented E
 	message = message.replace( /%C3%89/g, "E" ); // replace accented E
