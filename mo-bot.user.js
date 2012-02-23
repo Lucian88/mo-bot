@@ -1536,7 +1536,7 @@ function replaceBadLetters( message )
 	message = message.replace( /%C3%A4/g, "a" ); // replace accented a
 
 	message = message.replace( /%C4%87/g, "c" ); // replace accented c
-	message = message.replace( /%C3$A7/g, "c" ); // replace accented c
+	message = message.replace( /%C3%A7/g, "c" ); // replace accented c
 
 	message = message.replace( /%C3%88/g, "E" ); // replace accented E
 	message = message.replace( /%C3%89/g, "E" ); // replace accented E
