@@ -6,12 +6,12 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.4.6.1
+// @version      0.5.0.0
 // @icon         https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @icon64       https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/
-// @require      https://mo-bot.googlecode.com/hg/mo-bot.utils.js
 // @require      https://mo-bot.googlecode.com/hg/jquery-1.7.1.js
+// @require      https://mo-bot.googlecode.com/hg/mo-bot.utils-1.0.1.js
 // @updateURL    https://mo-bot.googlecode.com/hg/mo-bot.meta.js
 // ==/UserScript==
 
@@ -107,12 +107,13 @@ function initializeUserData( id )
 				  };
 }
 
-document.getElementsByTagName( "head" )[0].innerHTML += "<link rel=\"icon\" type=\"image/gif\" href=\"https://mo-bot.googlecode.com/hg/icons/MobileIcon.gif\" />";
-document.getElementById( "body" ).bgColor = Colors['Background'];
-document.getElementById( "body" ).innerHTML = "<div id=\"fillMe\" style=\"position:relative;left:0px;width:70%;height:100%;padding-bottom:25px;background-color:" + Colors['Background'] + ";\" ></div>";
-document.getElementById( "body" ).innerHTML += "<div id=\"fillUser\" style=\"position:fixed;top:0px;right:0px;width:30%;text-align:right;background-color:" + Colors['Background'] + ";\" ></div>";
-document.getElementById( "body" ).innerHTML += "<div><input type=\"text\" style=\"position:fixed;bottom:0px;width:100%;\" id=\"msg\" value=\"\"></div>";
-document.getElementById( "body" ).innerHTML += "<div id=\"tabs\" style=\"display:none;\"></div><div id=\"name\" style=\"display:none;\" ></div>"; // Makes script not freeze in case original xat mobile tries to fill an element with those IDs
+jQuery( "#body" ).html( "\
+<div id=\"fillMe\" style=\"position:relative;left:0px;width:70%;height:100%;padding-bottom:25px;\" ></div>\
+<div id=\"fillUser\" style=\"position:fixed;top:0px;right:0px;width:30%;text-align:right;\" ></div>\
+<div><input type=\"text\" style=\"position:fixed;bottom:0px;width:100%;\" id=\"msg\" value=\"\"></div>\
+<div id=\"tabs\" style=\"display:none;\"></div><div id=\"name\" style=\"display:none;\" ></div>" );
+jQuery( "#body" ).css( { "background-color" : Colors['Background'], "overflow-y" : "scroll" } );
+jQuery( "head" ).append( "<link rel=\"icon\" type=\"image/gif\" href=\"https://mo-bot.googlecode.com/hg/icons/MobileIcon.gif\" />" );
 document.title = "Mo-Bot @" + BotData.currentChat;
 unsafeWindow.Messages = [];
 unsafeWindow.Messages['Chat'] = "";
@@ -198,7 +199,7 @@ unsafeWindow.UserInfo = function UserInfo( node )
 	if( node.attributes.f ) unsafeWindow.Users[id]['f'] = parseInt( node.attributes.f.value );
 	s = "<span style=\"color:" + Colors['Text'] + "\" >";
 	s += id + " ";
-	if( unsafeWindow.Users[id]['N'] ) s += "<b>" + unsafeWindow.Users[id]['N'] + "</b> ";
+	if( unsafeWindow.Users[id]['N'] ) s += "<strong>" + unsafeWindow.Users[id]['N'] + "</strong> ";
 	s += unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] );
 	s += "</span>";
 	unsafeWindow.AddMess( "Users", s );
@@ -276,10 +277,6 @@ unsafeWindow.fillElementId = function fillElementId()
 					var name = "";
 					var r = id;
 					if( unsafeWindow.Users[id] == undefined ) unsafeWindow.UserInfo( e );
-					//{
-					//	if( nn == "z" ) 
-					//	else continue;
-					//}
 					if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + " (" + id + ")";
 					if( unsafeWindow.Users[id]['n'] ) name = "<span class=\"usernamePC\PM\" title=\"" + r + "\" style=\"color:" + Colors['NameText'] + "\" >" + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
 					unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>[PC/PM] </strong></span>" + name + " <span style=\"color:" + Colors['NameText'] + "\" ><strong id=\"PC\PM\">" + e.attributes.t.value + "</strong></span>" );
@@ -301,7 +298,7 @@ unsafeWindow.fillElementId = function fillElementId()
 						else continue;
 					}
 					var id = parseInt( e.attributes.u.value );
-					if( unsafeWindow.Users[id] == undefined ) unsafeWindow.UserInfo( e ); //continue;
+					if( unsafeWindow.Users[id] == undefined ) unsafeWindow.UserInfo( e );
 					var name = "";
 					var r = id;
 					if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + " (" + id + ")";
@@ -389,7 +386,7 @@ function handleCommand( cmd, arg, id )
 	cmd = cmd.toLowerCase();
 	var isBanned = isSubStr( BotData.banneds, id );
 	if( isBanned ) return;
-	arg = arg.substring( 0, arg.length - 1 ); // Removes extra space added to message. Fixes crypto() not hashing correct thing
+	arg = jQuery.trim( arg ); // Removes extra white space added to the message! "arg = arg.substring( 0, arg.length - 1 )" was used to remove the extra space added previously, but this new way removes multiple spaces easily
 	var args = arg.split( " " );
 	var isBotdev = isSubStr( BotData.botdevs, id );
 	var isDev = isSubStr( BotData.devs, id );
@@ -399,7 +396,7 @@ function handleCommand( cmd, arg, id )
 	{
 		switch( cmd )
 		{
-			case "die": die();	break;
+			case "die": die(); break;
 			case "resurrect": resurrect(); break;
 		}
 	}
@@ -526,45 +523,46 @@ function handleCommand( cmd, arg, id )
 function yahooSearch( query )
 {
 	query = query.replace( / /g, "+" );
-	getPage( "http://search.yahoo.com/search?p=" + query,
+	jQuery.get( "http://search.yahoo.com/search?p=" + query,
 	function( doc )
 	{
+		doc = createHtmlDoc( doc );
 		var offset = 0;
-		var results = doc.getElementsByClassName( "yschttl spt" );
-		var result1 = results[0 + offset].href;
+		var results = jQuery( ".yschttl.spt", doc );
+		var result1 = results.eq( 0 + offset ).attr( "href" );
 		var result1index = result1.indexOf( "**http" ) + 2;
 		result1 = result1.substring( result1index );
 		result1 = decodeURIComponent( result1 );
 		while( isSubStr( result1, "yahoo.com" ) )
 		{
 			offset++;
-			result1 = results[0 + offset].href;
+			result1 = results.eq( 0 + offset ).attr( "href" );
 			result1index = result1.indexOf( "**http" ) + 2;
 			result1 = result1.substring( result1index );
 			result1 = decodeURIComponent( result1 );
 		}
 		setTimeout( function() { sendMessage( result1 ); }, 1000 );
-		var result2 = results[1 + offset].href;
+		var result2 = results.eq( 1 + offset ).attr( "href" );
 		var result2index = result2.indexOf( "**http" ) + 2;
 		result2 = result2.substring( result2index );
 		result2 = decodeURIComponent( result2 );
 		while( isSubStr( result2, "yahoo.com" ) )
 		{
 			offset++;
-			result2 = results[1 + offset].href;
+			result2 = results.eq( 1 + offset ).attr( "href" );
 			result2index = result2.indexOf( "**http" ) + 2;
 			result2 = result2.substring( result2index );
 			result2 = decodeURIComponent( result2 );
 		}
 		setTimeout( function() { sendMessage( result2 ); }, 2000 );
-		var result3 = results[2 + offset].href;
+		var result3 = results.eq( 2 + offset ).attr( "href" );
 		var result3index = result3.indexOf( "**http" ) + 2;
 		result3 = result3.substring( result3index );
 		result3 = decodeURIComponent( result3 );
 		while( isSubStr( result3, "yahoo.com" ) )
 		{
 			offset++;
-			result3 = results[2 + offset].href;
+			result3 = results.eq( 2 + offset ).attr( "href" );
 			result3index = result3.indexOf( "**http" ) + 2;
 			result3 = result3.substring( result3index );
 			result3 = decodeURIComponent( result3 );
@@ -575,13 +573,12 @@ function yahooSearch( query )
 }
 function chatLog()
 {
-	var filled = document.getElementById( "fillMe" );
-	var messages = filled.getElementsByTagName( "b" );
-	var users = filled.getElementsByClassName( "username" );
+	var messages = jQuery( "b" );
+	var users = jQuery( ".username", "#fillMe" );
 	var pastetext = "";
-	for( var i in users )
+	for( var i = 0; i < messages.length; i++ )
 	{
-		pastetext += users[i].innerHTML + messages[i].innerHTML + "%0A";
+		pastetext += users.eq( i ).html() + messages.eq( i ).html() + "%0A";
 	}
 	pastetext = pastetext.replace( /&nbsp;/gi, " " );
 	tinypaste( pastetext ); // does tinypaste because only tinypaste works correctly with "%0A" as linebreaks
@@ -589,21 +586,22 @@ function chatLog()
 function iMDBsearch( query )
 {
 	query = query.replace(/ /g,"+");
-	getPage( "http://m.imdb.com/find?q=" + query,
+	jQuery.get( "http://m.imdb.com/find?q=" + query,
 	function( doc )
 	{
-		var results = doc.getElementsByClassName( "title" );
-		var result1 = results[0].innerHTML.between( " href=\"", "\" " );
+		doc = createHtmlDoc( doc );
+		var results = jQuery( ".title", doc );
+		var result1 = results.eq( 0 ).html().between( " href=\"", "\" " );
 		result1 = "http://www.imdb.com" + result1;
-		var result1title = results[0].innerHTML.between( "\">", "</a>" ) + results[0].innerHTML.between( "</a> ", "\n" );
+		var result1title = results.eq( 0 ).html().between( "\">", "</a>" ) + results.eq( 0 ).html().between( "</a> ", "\n" );
 		setTimeout( function() { sendMessage( result1title + " - " + result1 ); }, 1000 );
-		var result2 = results[1].innerHTML.between( " href=\"", "\" " );
+		var result2 = results.eq( 1 ).html().between( " href=\"", "\" " );
 		result2 = "http://www.imdb.com" + result2;
-		var result2title = results[1].innerHTML.between( "\">", "</a>" ) + results[1].innerHTML.between( "</a> ", "\n" );
+		var result2title = results.eq( 1 ).html().between( "\">", "</a>" ) + results.eq( 1 ).html().between( "</a> ", "\n" );
 		setTimeout( function() { sendMessage( result2title + " - " + result2 ); }, 2000 );
-		var result3 = results[2].innerHTML.between( " href=\"", "\" " );
+		var result3 = results.eq( 2 ).html().between( " href=\"", "\" " );
 		result3 = "http://www.imdb.com" + result3;
-		var result3title = results[2].innerHTML.between( "\">", "</a>" ) + results[2].innerHTML.between( "</a> ", "\n" );
+		var result3title = results.eq( 2 ).html().between( "\">", "</a>" ) + results.eq( 2 ).html().between( "</a> ", "\n" );
 		setTimeout( function() { sendMessage( result3title + " - " + result3 ); }, 3000 );
 	}
 	);
@@ -630,15 +628,16 @@ function upTime()
 }
 function googleStocks( query )
 {
-	getPage( "http://www.google.com/ig/api?stock=" + query,
+	jQuery.get( "http://www.google.com/ig/api?stock=" + query,
 	function( doc )
 	{
-		if( doc.getElementsByTagName( "company" )[0] != undefined && doc.getElementsByTagName( "company" )[0].getAttribute( "data" ) != "" )
+		doc = createHtmlDoc( doc );
+		if( jQuery( "company", doc ) != undefined && jQuery( "company", doc ).attr( "data" ) != "" )
 		{
-			var company = doc.getElementsByTagName( "company" )[0].getAttribute( "data" );
-			var current = doc.getElementsByTagName( "last" )[0].getAttribute( "data" );
-			var change = doc.getElementsByTagName( "change" )[0].getAttribute( "data" );
-			var percchange = doc.getElementsByTagName( "perc_change" )[0].getAttribute( "data" );
+			var company = jQuery( "company", doc ).attr( "data" );
+			var current = jQuery( "last", doc ).attr( "data" );
+			var change = jQuery( "change", doc ).attr( "data" );
+			var percchange = jQuery( "perc_change", doc ).attr( "data" );
 			setTimeout( function() { sendMessage( company + " " + current + " " + change + "(" + percchange + "%)" ); }, 1000 );
 		}
 		else
@@ -689,10 +688,11 @@ function horoScope( sign )
 			case "9": day = "09"; break;
 			default: break;
 		}
-		getPage( "http://m.astrology.com/inf/infomo;?site=astrology.com&view=horoscope_details&feed:a=astrolist&feed:c=astrolist&feed:i=64A08E5F1E6C39FAEB90108C430EB120&feed=dailyoverview&tdate=" + year + month + day + "&astsign=" + sign.charAt( 0 ).toUpperCase() + sign.substring( 1 ),
+		jQuery.get( "http://m.astrology.com/inf/infomo;?site=astrology.com&view=horoscope_details&feed:a=astrolist&feed:c=astrolist&feed:i=64A08E5F1E6C39FAEB90108C430EB120&feed=dailyoverview&tdate=" + year + month + day + "&astsign=" + sign.charAt( 0 ).toUpperCase() + sign.substring( 1 ),
 		function( doc )
 		{
-			var horoscope = doc.getElementsByClassName( "list" )[0].innerHTML;
+			doc = createHtmlDoc( doc );
+			var horoscope = jQuery( ".list", doc ).html();
 			var breakLocation = horoscope.indexOf( "br" );
 			breakLocation += 3;
 			horoscope = horoscope.substring( breakLocation );
@@ -703,15 +703,16 @@ function horoScope( sign )
 }
 function fMyLife()
 {
-	getPage( "http://m.fmylife.com/",
+	jQuery.get( "http://m.fmylife.com/",
 	function( doc )
 	{
-		var fmls = doc.getElementsByClassName( "text" );
-		var story = fmls[Math.floor( Math.random() * 12 )].innerHTML;
+		doc = createHtmlDoc( doc );
+		var fmls = jQuery( ".text", doc );
+		var story = fmls.eq( Math.floor( Math.random() * 12 ) ).html();
 		var offset = 0;
 		while( story.length > 200 && offset < 12 )
 		{
-			story = fmls[Math.floor( Math.random() * 12 )].innerHTML;
+			story = fmls.eq( Math.floor( Math.random() * 12 ) ).html();
 			offset++;
 		}
 		if( story.length <= 200 ) setTimeout( function() { sendMessage( story ); }, 2500 );
@@ -721,16 +722,17 @@ function fMyLife()
 }
 function googleWeather( query )
 {
-	getPage( "http://www.google.com/ig/api?weather=" + query,
+	jQuery.get( "http://www.google.com/ig/api?weather=" + query,
 	function( doc )
 	{
-		if( doc.getElementsByTagName( "condition" )[0] != undefined )
+		doc = createHtmlDoc( doc );
+		if( jQuery( "condition", doc ).attr( "data" ) != undefined )
 		{
-			var condition = doc.getElementsByTagName( "condition" )[0].getAttribute( "data" );
-			var f = doc.getElementsByTagName( "temp_f" )[0].getAttribute( "data" );
-			var c = doc.getElementsByTagName( "temp_c" )[0].getAttribute( "data" );
-			var humidity = doc.getElementsByTagName( "humidity" )[0].getAttribute( "data" );
-			var wind = doc.getElementsByTagName( "wind_condition" )[0].getAttribute( "data" );
+			var condition = jQuery( "condition", doc ).attr( "data" );
+			var f = jQuery( "temp_f", doc ).attr( "data" );
+			var c = jQuery( "temp_c", doc ).attr( "data" );
+			var humidity = jQuery( "humidity", doc ).attr( "data" );
+			var wind = jQuery( "wind_condition", doc ).attr( "data" );
 			var windspeedmph = wind.between( "at ", " mph" );
 			var windspeedkph = Math.round( windspeedmph * 1.609344 );
 			setTimeout( function() { sendMessage( condition + ", " + f + "F(" + c + "C), " + humidity + ", " + wind + "(" + windspeedkph + " kph)." ); }, 1000 );
@@ -742,12 +744,13 @@ function googleWeather( query )
 	}
 	);
 }
-function spellCheck( query )
+function spellCheck( query ) // could be converted to jQuery more... got lazy for now:: TODO: CONVERT TO jQuery
 {
-	getPage( "http://svc.webservius.com/v1/spellcheck/spellcheck/?wsvKey=" + ApiKeys['spellCheck'] + "&cmd=check_spelling&version=1.0&format=xml&ignore_domain_names=1&text=" + encodeURI( query ),
+	jQuery.get( "http://svc.webservius.com/v1/spellcheck/spellcheck/?wsvKey=" + ApiKeys['spellCheck'] + "&cmd=check_spelling&version=1.0&format=xml&ignore_domain_names=1&text=" + encodeURI( query ),
 	function( doc )
 	{
-		var suggestions = doc.getElementsByTagName( "suggestion" );
+		doc = createHtmlDoc( doc );
+		var suggestions = jQuery( "suggestion", doc ).toArray();
 		if( suggestions != undefined && suggestions[0] != undefined && suggestions[1] == undefined ) setTimeout( function() { sendMessage( "Did you mean: " + suggestions[0].innerHTML + " ?" ); }, 500 );
 		else if( suggestions != undefined && suggestions[0] != undefined && suggestions[1] != undefined && suggestions[2] == undefined ) setTimeout( function() { sendMessage( "Did you mean: " + suggestions[0].innerHTML + ", " + suggestions[1].innerHTML + " ?" ); }, 500 );
 		else if( suggestions != undefined && suggestions[0] != undefined && suggestions[1] != undefined && suggestions[2] != undefined && suggestions[3] == undefined ) setTimeout( function() { sendMessage( "Did you mean: " + suggestions[0].innerHTML + ", " + suggestions[1].innerHTML + ", " + suggestions[2].innerHTML + " ?" ); }, 500 );
@@ -761,10 +764,11 @@ function scramble( argOrWord, id )
 	if( argOrWord == "start" && !scrambling )
 	{
 		scrambling = true;
-		getPage( "http://watchout4snakes.com/CreativityTools/RandomWord/RandomWord.aspx",
+		jQuery.get( "http://watchout4snakes.com/CreativityTools/RandomWord/RandomWord.aspx",
 		function( doc )
 		{
-			scrambleAnswer = doc.getElementsByClassName( "randomWord" )[0].innerHTML;
+			doc = createHtmlDoc( doc );
+			scrambleAnswer = jQuery( ".randomWord", doc ).html();
 			scrambleWord = wordScramble( scrambleAnswer );
 			setTimeout( function() { sendMessage( "Scrambled Word: " + scrambleWord ); }, 500 );
 		}
@@ -784,14 +788,15 @@ function scramble( argOrWord, id )
 }
 function dictionary( query )
 {
-	getPage( "http://m.dictionary.com/d/?q=" + query,
+	jQuery.get( "http://m.dictionary.com/d/?q=" + query,
 	function( doc )
 	{
-		var name = doc.getElementsByTagName( "meta" )[1].name;
+		doc = createHtmlDoc( doc );
+		var name = jQuery( "meta", doc ).eq( 1 ).attr( "name" );
 		if( name == undefined || name != "description" ) setTimeout( function() { sendMessage( query + " not found." ); }, 750 );
 		else
 		{
-			var definition = doc.getElementsByTagName( "meta" )[1].content;
+			var definition = jQuery( "meta", doc ).eq( 1 ).attr( "content" );
 			setTimeout( function() { sendMessage( query + " - " + definition ); }, 750 );
 		}
 	}
@@ -799,10 +804,11 @@ function dictionary( query )
 }
 function wordOfTheDay()
 {
-	getPage( "http://m.dictionary.com/",
+	jQuery.get( "http://m.dictionary.com/",
 	function( doc )
 	{
-		var word = doc.getElementsByClassName( "subheader currentword nounderline" )[0].innerHTML;
+		doc = createHtmlDoc( doc );
+		var word = jQuery( ".subheader.currentword.nounderline", doc ).html();
 		dictionary( word );
 	}
 	);
@@ -816,25 +822,28 @@ function lastFm( query, mode )
 {
 	if( mode == "artist" )
 	{
-		getPage( "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=" + query + "&api_key=" + ApiKeys['lastFm'],
+		jQuery.get( "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=" + query + "&api_key=" + ApiKeys['lastFm'],
 		function( doc )
 		{
-			var artist = doc.getElementsByTagName( "url" );
-			setTimeout( function() { sendMessage( artist[0].innerHTML ); }, 500 );
+			doc = createHtmlDoc( doc );
+			var artist = jQuery( "url", doc );
+			if( artist.html() != null ) setTimeout( function() { sendMessage( artist.html() ); }, 500 );
 		}
 		);
-		getPage( "http://ws.audioscrobbler.com/2.0/?method=artist.gettopalbums&artist=" + query + "&api_key=" + ApiKeys['lastFm'] + "&limit=2",
+		jQuery.get( "http://ws.audioscrobbler.com/2.0/?method=artist.gettopalbums&artist=" + query + "&api_key=" + ApiKeys['lastFm'] + "&limit=2",
 		function( doc )
 		{
-			var album = doc.getElementsByTagName( "url" );
-			setTimeout( function() { sendMessage( album[0].innerHTML ); }, 1150 );
+			doc = createHtmlDoc( doc );
+			var album = jQuery( "url", doc );
+			if( album.html() != null ) setTimeout( function() { sendMessage( album.html() ); }, 1500 );
 		}
 		);
-		getPage( "http://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&artist=" + query + "&api_key=" + ApiKeys['lastFm'] + "&limit=2",
+		jQuery.get( "http://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&artist=" + query + "&api_key=" + ApiKeys['lastFm'] + "&limit=2",
 		function( doc )
 		{
-			var song = doc.getElementsByTagName( "url" );
-			setTimeout( function() { sendMessage( song[0].innerHTML ); }, 1800 );
+			doc = createHtmlDoc( doc );
+			var song = jQuery( "url", doc );
+			if( song.html() != null ) setTimeout( function() { sendMessage( song.html() ); }, 2500 );
 		}
 		);
 	}
@@ -843,48 +852,52 @@ function lastFm( query, mode )
 		query = query.toLowerCase();
 		if( query == "artist" || query == "artists" )
 		{
-			getPage( "http://ws.audioscrobbler.com/2.0/?method=chart.gettopartists&api_key=" + ApiKeys['lastFm'] + "&limit=5",
+			jQuery.get( "http://ws.audioscrobbler.com/2.0/?method=chart.gettopartists&api_key=" + ApiKeys['lastFm'] + "&limit=5",
 			function( doc )
 			{
-				var artists = doc.getElementsByTagName( "url" );
-				setTimeout( function() { sendMessage( "1. " + artists[0].innerHTML ); }, 800 );
-				setTimeout( function() { sendMessage( "2. " + artists[2].innerHTML ); }, 1600 );
-				setTimeout( function() { sendMessage( "3. " + artists[4].innerHTML ); }, 2400 );
+				doc = createHtmlDoc( doc );
+				var artists = jQuery( "url", doc );
+				if( artists.eq( 0 ).html() != null ) setTimeout( function() { sendMessage( "1. " + artists.eq( 0 ).html() ); }, 800 );
+				if( artists.eq( 2 ).html() != null ) setTimeout( function() { sendMessage( "2. " + artists.eq( 2 ).html()  ); }, 1700 );
+				if( artists.eq( 4 ).html() != null ) setTimeout( function() { sendMessage( "3. " + artists.eq( 4 ).html()  ); }, 2600 );
 			}
 			);
 		}
 		else if( query == "song" || query == "songs" )
 		{
-			getPage( "http://ws.audioscrobbler.com/2.0/?method=chart.gettoptracks&api_key=" + ApiKeys['lastFm'] + "&limit=5",
+			jQuery.get( "http://ws.audioscrobbler.com/2.0/?method=chart.gettoptracks&api_key=" + ApiKeys['lastFm'] + "&limit=5",
 			function( doc )
 			{
-				var songs = doc.getElementsByTagName( "url" );
-				setTimeout( function() { sendMessage( "1. " + songs[0].innerHTML ); }, 800 );
-				setTimeout( function() { sendMessage( "2. " + songs[2].innerHTML ); }, 1600 );
-				setTimeout( function() { sendMessage( "3. " + songs[4].innerHTML ); }, 2400 );
+				doc = createHtmlDoc( doc );
+				var songs = jQuery( "url", doc );
+				if( songs.eq( 0 ).html() != null ) setTimeout( function() { sendMessage( "1. " + songs.eq( 0 ).html() ); }, 800 );
+				if( songs.eq( 2 ).html() != null ) setTimeout( function() { sendMessage( "2. " + songs.eq( 2 ).html()  ); }, 1700 );
+				if( songs.eq( 4 ).html() != null ) setTimeout( function() { sendMessage( "3. " + songs.eq( 4 ).html()  ); }, 2600 );
 			}
 			);
 		}
 	}
 	else if( mode == "user" )
 	{
-		getPage( "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=" + query + "&api_key=" + ApiKeys['lastFm'] + "&limit=5",
+		jQuery.get( "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=" + query + "&api_key=" + ApiKeys['lastFm'] + "&limit=5",
 		function( doc )
 		{
-			var songs = doc.getElementsByTagName( "url" );
-			setTimeout( function() { sendMessage( "1. " + songs[0].innerHTML ); }, 500 );
-			setTimeout( function() { sendMessage( "2. " + songs[1].innerHTML ); }, 1150 );
-			setTimeout( function() { sendMessage( "3. " + songs[2].innerHTML ); }, 1800 );
+			doc = createHtmlDoc( doc );
+			var songs = jQuery( "url", doc );
+			if( songs.eq( 0 ).html() != null ) setTimeout( function() { sendMessage( "1. " + songs.eq( 0 ).html() ); }, 800 );
+			if( songs.eq( 2 ).html() != null ) setTimeout( function() { sendMessage( "2. " + songs.eq( 2 ).html()  ); }, 1700 );
+			if( songs.eq( 4 ).html() != null ) setTimeout( function() { sendMessage( "3. " + songs.eq( 4 ).html()  ); }, 2600 );
 		}
 		);
 	}
 }
 function googleTranslate( text, language )
 {
-	getPage( "http://i1.xat.com/web_gear/chat/translate1.php?key=" + ApiKeys['translate'] + "&q=" + text + "&target=" + language,
+	jQuery.get( "http://i1.xat.com/web_gear/chat/translate1.php?key=" + ApiKeys['translate'] + "&q=" + text + "&target=" + language,
 	function( doc )
 	{
-		var txt = doc.getElementsByTagName( "html" )[0].innerHTML;
+		doc = createHtmlDoc( doc );
+		var txt = jQuery( "html", doc ).html();
 		var translated = txt.between( "\"translatedText\": \"", "\"," );
 		sendMessage( translated );
 	}
@@ -892,63 +905,37 @@ function googleTranslate( text, language )
 }
 function kdepaste( pastetext )
 {
-	setTimeout( function()
+	jQuery.post( "http://paste.kde.org/", "paste_lang=text&api_submit=1&mode=xml&paste_data=" + encodeURIComponent( pastetext ),
+	function( doc )
 	{
-		GM_xmlhttpRequest(
+		var pasteid = jQuery( "id", doc );
+		if( !( pasteid.eq( 0 ) == undefined || pasteid == undefined ) )
 		{
-			method: "POST",
-			url: "http://paste.kde.org/",
-			headers: { "Content-Type" : "application/x-www-form-urlencoded" },
-			data: "paste_lang=text&api_submit=1&mode=xml&paste_data=" + encodeURIComponent( pastetext ),
-			onload: function( responseDetails )
-			{
-				var dt = document.implementation.createDocumentType( "html", "-//W3C//DTD HTML 4.01 Transitional//EN", "http://www.w3.org/TR/html4/loose.dtd" ),
-				doc = document.implementation.createDocument( "", "", dt ),
-				html = doc.createElement( "html" );
-				html.innerHTML = responseDetails.responseText;
-				doc.appendChild( html );
-				var pasteid = doc.getElementsByTagName( "id" );
-				if( !( pasteid[0] == undefined || pasteid == undefined ) )
-				{
-					var paste = "http://paste.kde.org/" + pasteid[0].innerHTML;
-					setTimeout( function() { sendMessage( paste ); }, 1000 );
-				}
-			}
+			var paste = "http://paste.kde.org/" + pasteid.eq( 0 ).html();
+			setTimeout( function() { sendMessage( paste ); }, 1000 );
 		}
-		);
-	}, 1 );
+	}
+	);
 }
 function pastebin( pastetext )
 {
-	setTimeout( function()
-	{
-		GM_xmlhttpRequest(
-		{
-			method: "POST",
-			url: "http://pastebin.com/api/api_post.php",
-			headers: { "Content-Type" : "application/x-www-form-urlencoded" },
-			data: "api_option=paste&api_dev_key=" + ApiKeys['pastebin'] + "&api_paste_code=" + encodeURIComponent( pastetext ),
-			onload: function( responseDetails )
-			{ 
-				var paste = responseDetails.responseText;
-				if( isSubStr( paste, "http" ) )
-				{
-					setTimeout( function() { sendMessage( paste ); }, 1000 );
-				}
-			}
-		}
-		);
-	}, 1 );
-}
-function tinypaste( pastetext )
-{
-	getPage( "http://tinypaste.com/api/create.xml?paste=" + encodeURIComponent( pastetext ),
+	jQuery.post( "http://pastebin.com/api/api_post.php", "api_option=paste&api_dev_key=" + ApiKeys['pastebin'] + "&api_paste_code=" + encodeURIComponent( pastetext ),
 	function( doc )
 	{
-		var pasteid = doc.getElementsByTagName( "response" );
-		if( !( pasteid[0] == undefined || pasteid == undefined ) )
+		if( isSubStr( doc, "http" ) ) setTimeout( function() { sendMessage( doc ); }, 1000 );
+	}
+	);
+}
+function tinypaste( pastetext ) 
+{
+	jQuery.get( "http://tinypaste.com/api/create.xml?paste=" + encodeURIComponent( pastetext ),
+	function( doc )
+	{
+		doc = createHtmlDoc( doc );
+		var pasteid = jQuery( "response", doc );
+		if( pasteid != undefined )
 		{
-			var paste = "http://tinypaste.com/" + pasteid[0].innerHTML;
+			var paste = "http://tinypaste.com/" + pasteid.html();
 			setTimeout( function() { sendMessage( paste ); }, 1000 );
 		}
 	}
@@ -960,14 +947,15 @@ function powerimage( power )
 }
 function twitter( user )
 {
-	getPage( "http://api.twitter.com/1/statuses/user_timeline.xml?screen_name=" + user + "&count=1&include_rts=1",
+	jQuery.get( "http://api.twitter.com/1/statuses/user_timeline.xml?screen_name=" + user + "&count=1&include_rts=1",
 	function( doc )
 	{
-		var tweets = doc.getElementsByTagName( "text" );
-		if( tweets[0] == undefined || tweets == undefined ) setTimeout( function() { sendMessage( "No tweets found!" ); }, 1000 );
+		doc = createHtmlDoc( doc );
+		var tweets = jQuery( "text", doc );
+		if( tweets.html() == undefined || tweets == undefined ) setTimeout( function() { sendMessage( "No tweets found!" ); }, 1000 );
 		else
 		{
-			var tweet = tweets[0].innerHTML;
+			var tweet = tweets.html();
 			if( isSubStr( tweet, "#" ) )
 			{
 				tweet = tweet.replace( /#/g, "_#" );
@@ -983,10 +971,11 @@ function bitly( url )
 	{
 		url = url.replace( "https://", "http://" ); // https doesn't bring back a valid url (missing : after https)
 	}
-	getPage( "http://api.bitly.com/v3/shorten?login=" + ApiKeys['bitlyLogin'] + "&apiKey=" + ApiKeys['bitlyKey'] + "&longUrl=" + encodeURI( url ) + "&format=txt",
+	jQuery.get( "http://api.bitly.com/v3/shorten?login=" + ApiKeys['bitlyLogin'] + "&apiKey=" + ApiKeys['bitlyKey'] + "&longUrl=" + encodeURI( url ) + "&format=txt",
 	function( doc )
 	{
-		var shortened = doc.getElementsByTagName( "body" )[0].innerHTML;
+		doc = createHtmlDoc( doc );
+		var shortened = jQuery( "body", doc ).html();
 		if( shortened == "INVALID_URI" || shortened == "ALREADY_A_BITLY_LINK" ) return; // fix for bad bit.ly urls
 		sendMessage( shortened );
 	}
@@ -1008,22 +997,20 @@ function GooGl( url )
 	{
 		url = url.replace( "https://", "http://" ); // https doesn't bring back a valid url (missing : after https)
 	}
-	setTimeout( function() // unsafeWindow cannot call GM_xmlhttpRequest()
+	jQuery.ajax(
 	{
-		GM_xmlhttpRequest(
+        "type" : "POST",
+        "url" : "https://www.googleapis.com/urlshortener/v1/url",
+        "contentType" : "application/json",
+        "data" : JSON.stringify( { "longUrl" : encodeURI( url ) } ),
+        "dataType" : "text",
+        "success" : function( doc )
 		{
-			method: "POST",
-			url: "https://www.googleapis.com/urlshortener/v1/url",
-			headers: { "Content-Type":"application/json" },
-			data: JSON.stringify( { "longUrl" : encodeURI( url ) } ),
-			onload: function( responseDetails )
-			{ 
-				var shortened = JSON.parse( responseDetails.responseText ).id;
-				sendMessage( shortened );
-			}
+			var test = JSON.parse( doc ).id;
+			sendMessage( test );
 		}
-		);
-	}, 1 );
+    }
+	);
 }
 function getNick( id, extra )
 {
@@ -1127,16 +1114,17 @@ function urban( term, random )
 	term = term.replace( " ", "+" );
 	if( random ) var url = "http://www.urbandictionary.com/random.php";
 	else var url = "http://www.urbandictionary.com/define.php?term=" + term;
-	getPage( url,
+	jQuery.get( url,
 	function( doc )
 	{
-		var defs = doc.getElementsByTagName( "meta" );
-		var names = doc.getElementsByClassName( "word" );
-		if( defs[0] == undefined || names[0] == undefined ) setTimeout( function() { sendMessage( "No definition found!" ); }, 1000 );
+		doc = createHtmlDoc( doc );
+		var defs = jQuery( "meta", doc );
+		var names = jQuery( ".word", doc );
+		if( defs == undefined || names == undefined || defs.eq( 0 ) == undefined || names.eq( 0 ) == undefined ) setTimeout( function() { sendMessage( "No definition found!" ); }, 1000 );
 		else
 		{
-			var result = defs[0].content;
-			var name = names[0].innerHTML;
+			var result = defs.eq( 0 ).attr( "content" );
+			var name = names.eq( 0 ).html();
 			name = name.substring( 1 );
 			result = result.replace( "br", "" );
 			if( result.length > 107 ) result = result.substring( 0, 107 ) + "...";
@@ -1148,15 +1136,16 @@ function urban( term, random )
 function google( query )
 {
 	query = query.replace( / /g, "+" );
-	getPage( "http://www.google.com/search?q=" + query,
+	jQuery.get( "http://www.google.com/search?q=" + query,
 	function( doc )
 	{
-		var results = doc.getElementsByClassName( "l" );
-		var result1 = results[0].href;
+		doc = createHtmlDoc( doc );
+		var results = jQuery( ".l", doc );
+		var result1 = results.eq( 0 ).attr( "href" );
 		setTimeout( function() { sendMessage( result1 ); }, 750 );
-		var result2 = results[1].href;
+		var result2 = results.eq( 1 ).attr( "href" );
 		setTimeout( function() { sendMessage( result2 ); }, 1500 );
-		var result3 = results[2].href;
+		var result3 = results.eq( 2 ).attr( "href" );
 		setTimeout( function() { sendMessage( result3 ); }, 2250 );
 	}
 	);
@@ -1164,38 +1153,39 @@ function google( query )
 function youtube( query )
 {
 	query = query.replace( / /g, "+" );
-	getPage( "http://www.youtube.com/results?search_query=" + query,
+	jQuery.get( "http://www.youtube.com/results?search_query=" + query,
 	function( doc )
 	{
+		doc = createHtmlDoc( doc );
 		var offset = 0;
-		var results = doc.getElementsByClassName( "yt-uix-tile-link" );
-		var result1 = results[0].href;
-		var result1title = results[0].title;
+		var results = jQuery( ".yt-uix-tile-link", doc );
+		var result1 = results.eq( 0 ).attr( "href" );
+		var result1title = results.eq( 0 ).attr( "title" );
 		while( result1title == "" || !isSubStr( result1, "watch" ) )
 		{
 			offset++;
-			result1 = results[0 + offset].href;
-			result1title = results[0 + offset].title;
+			result1 = results.eq( 0 + offset ).attr( "href" );
+			result1title = results.eq( 0 + offset ).attr( "title" );
 		}
 		result1 = "http://www.youtube.com" + result1;
 		setTimeout( function() { sendMessage( /*result1title + " - " + */ result1 ); }, 900 );
-		var result2 = results[1 + offset].href;
-		var result2title = results[1 + offset].title;
+		var result2 = results.eq( 1 + offset ).attr( "href" );
+		var result2title = results.eq( 1 + offset ).attr( "title" );
 		while( result2title == "" || !isSubStr( result2, "watch" ) )
 		{
 			offset++;
-			result2 = results[1 + offset].href;
-			result2title = results[1 + offset].title;
+			result2 = results.eq( 1 + offset ).attr( "href" );
+			result2title = results.eq( 1 + offset ).attr( "title" );
 		}
 		result2 = "http://www.youtube.com" + result2;
 		setTimeout( function() { sendMessage( /*result2title + " - " + */ result2 ); }, 1800 );
-		var result3 = results[2 + offset].href;
-		var result3title = results[2 + offset].title;
+		var result3 = results.eq( 2 + offset ).attr( "href" );
+		var result3title = results.eq( 2 + offset ).attr( "title" );
 		while( result3title == "" || !isSubStr( result3, "watch" ) )
 		{
 			offset++;
-			result3 = results[2 + offset].href;
-			result3title = results[2 + offset].title;
+			result3 = results.eq( 2 + offset ).attr( "href" );
+			result3title = results.eq( 2 + offset ).attr( "title" );
 		}
 		result3 = "http://www.youtube.com" + result3;
 		setTimeout( function() { sendMessage( /*result3title + " - " + */ result3 ); }, 2700 );
@@ -1204,10 +1194,11 @@ function youtube( query )
 }
 function fact()
 {
-	getPage( "http://www.omg-facts.com/random",
+	jQuery.get( "http://www.omg-facts.com/random",
 	function( doc )
 	{
-		var fact = doc.getElementsByTagName( "meta" )[1].content;
+		doc = createHtmlDoc( doc );
+		var fact = jQuery( "meta", doc ).eq( 1 ).attr( "content" );
 		factLocation = fact.indexOf( "- Facts" );
 		fact = fact.substring( 0, factLocation );
 		setTimeout( function() { sendMessage( fact ); }, 1000 );
@@ -1254,10 +1245,11 @@ function bawtName( newName )
 }
 function getId( regname )
 {
-	getPage( "http://util.xat.com/" + regname,
+	jQuery.get( "http://util.xat.com/" + regname,
 	function( doc )
 	{
-		var place = doc.getElementById( "xatstyheadernav" ).innerHTML;
+		doc = createHtmlDoc( doc );
+		var place = jQuery( "#xatstyheadernav", doc ).html();
 		var id = place.between( "http://xat.com/web_gear/chat/inappropriateprofile.php?id=", "&amp;UserName=" );
 		if( id.length > 1 ) setTimeout( function() { sendMessage( id ); }, 450 );
 		else setTimeout( function() { sendMessage( "User not found." ); }, 450 );
@@ -1266,10 +1258,11 @@ function getId( regname )
 }
 function regname( id )
 {
-	getPage( "http://util.xat.com/i=" + id,
+	jQuery.get( "http://util.xat.com/i=" + id,
 	function( doc )
 	{
-		var title = doc.title;
+		doc = createHtmlDoc( doc );
+		var title = jQuery( "title", doc ).html();
 		var regnameLoc = title.indexOf( " for " ) + 5;
 		var regname = title.substring( regnameLoc );
 		if( regname.length < 19 && regname.length > 2 ) setTimeout( function() { sendMessage( regname ); }, 450 );
