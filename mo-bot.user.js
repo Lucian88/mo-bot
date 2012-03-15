@@ -6,7 +6,7 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.5.0.1
+// @version      0.6.0.0
 // @icon         https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @icon64       https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/
@@ -64,7 +64,7 @@ else
 					"trusteds" : " ",
 					"banneds" : " ",
 					"botName" : "Mo-Bot",
-					"currentChat" : "wick3d",
+					"currentChat" : "mwisbest",
 					"botRegname": "", // insert bot's RegName here
 					"botID" : "", // insert bot's ID here
 					"botRealPass" : "", // insert bot's password here (for reboot capabilities, among other things)
@@ -110,8 +110,13 @@ function initializeUserData( id )
 jQuery( "#body" ).html( "\
 <div id=\"fillMe\" style=\"position:relative;left:0px;width:70%;height:100%;padding-bottom:25px;\" ></div>\
 <div id=\"fillUser\" style=\"position:fixed;top:0px;right:0px;width:30%;text-align:right;\" ></div>\
-<div><input type=\"text\" style=\"position:fixed;bottom:0px;width:100%;\" id=\"msg\" value=\"\"></div>\
-<div id=\"tabs\" style=\"display:none;\"></div><div id=\"name\" style=\"display:none;\" ></div>" );
+<div><input type=\"text\" style=\"position:fixed;left:0px;bottom:0px;width:100%;\" id=\"msg\" value=\"\" ></div>\
+<div id=\"config\" style=\"display:none;position:fixed;top:50%;left:50%;width:298px;height:50px;margin-left:-100px;margin-top:-25px;background-color:" + Colors['Config'] + ";border-radius:2px;\" >\
+<input type=\"text\" placeholder=\"Bot Regname\" style=\"position:absolute;margin:2px;top:0px;left:0px;border-radius:2px;border:2px solid rgb(0,0,0);\" id=\"botRegname\" >\
+<input type=\"text\" placeholder=\"Bot ID\" style=\"position:absolute;margin:2px;bottom:0px;left:0px;border-radius:2px;border:2px solid rgb(0,0,0);\" id=\"botID\" >\
+<input type=\"password\" placeholder=\"Bot Password\" style=\"position:absolute;margin:2px;top:0px;right:0px;border-radius:2px;border:2px solid rgb(0,0,0);\" id=\"botPassword\" >\
+<input type=\"text\" placeholder=\"BotDev ID\" style=\"position:absolute;margin:2px;bottom:0px;right:0px;border-radius:2px;border:2px solid rgb(0,0,0);\" id=\"botDevID\" ></div>\
+<div id=\"tabs\" style=\"display:none;\" ></div><div id=\"name\" style=\"display:none;\" ></div>" );
 jQuery( "#body" ).css( { "background-color" : Colors['Background'], "overflow-y" : "scroll" } );
 jQuery( "head" ).append( "<link rel=\"icon\" type=\"image/gif\" href=\"https://mo-bot.googlecode.com/hg/icons/MobileIcon.gif\" />" );
 document.title = "Mo-Bot @" + BotData.currentChat;
@@ -268,28 +273,28 @@ unsafeWindow.fillElementId = function fillElementId()
 			var nn = "";
 			for( var n = 0; n < xmlDocument.firstChild.childNodes.length; n++ )
 			{
-				var e = xmlDocument.firstChild.childNodes[n];
-				nn = e.nodeName;
+				var xml = xmlDocument.firstChild.childNodes[n];
+				nn = xml.nodeName;
 				if( nn == "p" || nn == "z" ) // z = pm & p = pc
 				{
-					if( e.attributes.t.value.charAt( 0 ) == "/" ) continue;
-					var id = parseInt( e.attributes.u.value );
+					if( xml.attributes.t.value.charAt( 0 ) == "/" ) continue;
+					var id = parseInt( xml.attributes.u.value );
 					var name = "";
 					var r = id;
-					if( unsafeWindow.Users[id] == undefined ) unsafeWindow.UserInfo( e );
+					if( unsafeWindow.Users[id] == undefined ) unsafeWindow.UserInfo( xml );
 					if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + " (" + id + ")";
 					if( unsafeWindow.Users[id]['n'] ) name = "<span class=\"usernamePC\PM\" title=\"" + r + "\" style=\"color:" + Colors['NameText'] + "\" >" + unsafeWindow.StripSmilies( unsafeWindow.Users[id]['n'] ) + ": </span>";
-					unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>[PC/PM] </strong></span>" + name + " <span style=\"color:" + Colors['NameText'] + "\" ><strong id=\"PC\PM\">" + e.attributes.t.value + "</strong></span>" );
+					unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>[PC/PM] </strong></span>" + name + " <span style=\"color:" + Colors['NameText'] + "\" ><strong id=\"PC\PM\">" + xml.attributes.t.value + "</strong></span>" );
 				}
 				else if( nn == "m" ) // main chat message
 				{
-					var t = e.attributes.t.value;
+					var t = xml.attributes.t.value;
 					if( t.charAt( 0 ) == "/" )
 					{
 						var y = t.charAt( 1 );
 						var derp = t.charAt( 2 );
 						if( y != "g" && y != "k" && y != "u" ) continue;
-						var d = parseInt( e.attributes.d.value );
+						var d = parseInt( xml.attributes.d.value );
 						if( unsafeWindow.Users[d] == undefined ) continue;
 						if( y == "g" && derp != "m" ) t = "I have banned " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] ) + " for " + ( parseInt( t.substr( 2 ) ) / 3600 ) + " hours.";
 						else if( y == "g" && derp == "m" ) t = "I have muted " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] ) + " for " + ( parseInt( t.substr( 3 ) ) / 3600 ) + " hours.";
@@ -297,8 +302,8 @@ unsafeWindow.fillElementId = function fillElementId()
 						else if( y == "u" ) t = "I have unbanned " + unsafeWindow.StripSmilies( unsafeWindow.Users[d]['n'] );
 						else continue;
 					}
-					var id = parseInt( e.attributes.u.value );
-					if( unsafeWindow.Users[id] == undefined ) unsafeWindow.UserInfo( e );
+					var id = parseInt( xml.attributes.u.value );
+					if( unsafeWindow.Users[id] == undefined ) unsafeWindow.UserInfo( xml );
 					var name = "";
 					var r = id;
 					if( unsafeWindow.Users[id]['N'] ) r = unsafeWindow.Users[id]['N'] + " (" + id + ")";
@@ -308,24 +313,24 @@ unsafeWindow.fillElementId = function fillElementId()
 				}
 				else if( nn == "l" ) // User logs out
 				{
-					var id = parseInt( e.attributes.u.value );
+					var id = parseInt( xml.attributes.u.value );
 					unsafeWindow.UndoUserInfo( id );
 				}
 				else if( nn == "u" ) // User connects
 				{
 					var t = 1;
-					unsafeWindow.UserInfo( e );
+					unsafeWindow.UserInfo( xml );
 					t++;
 				}
 				/*
 				else if( nn == "gn" ) // This was used to set the chat name in places, but it didn't always work. Removed for now
 				{
-					document.getElementById( "name" ).innerHTML = "&nbsp;" + e.attributes.n.value;
+					document.getElementById( "name" ).innerHTML = "&nbsp;" + xml.attributes.n.value;
 				}
 				*/
 				else if( nn == "v" ) // Xat error of some sort
 				{
-					var e = parseInt( e.attributes.e.value );
+					var e = parseInt( xml.attributes.e.value );
 					if( e == 1 )
 					{
 						unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>You have been logged out!</strong></span>" );
@@ -342,13 +347,13 @@ unsafeWindow.fillElementId = function fillElementId()
 						unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>Bad user name!</strong></span>" );
 						reboot( true );
 						nn = "logout";
-					}		
-					else				
+					}
+					else
 					{
 						unsafeWindow.AddMess( "Chat", "<span style=\"color:" + Colors['Text'] + "\" ><strong>Error Z" + e + "</strong></span>" );
 						reboot();
 						nn = "logout";
-					}		
+					}
 					break;
 				}
 				else if( nn == "logout" )
@@ -1620,34 +1625,89 @@ function sendPC( message, id )
 
 function enterPressed( evn )
 {
-	var jqbox = jQuery( "#msg" );
-	var msg = jqbox.val();
+	var box = jQuery( "#msg" );
+	var config = jQuery( "#config" );
+	var botRegname = jQuery( "#botRegname" );
+	var botID = jQuery( "#botID" );
+	var botPassword = jQuery( "#botPassword" );
+	var botDevID = jQuery( "#botDevID" );
+	var msg = box.val();
 	var id = BotData.botID;
+	var shorten = document.activeElement;
 	if( ( window.event && window.event.keyCode == 13 ) || ( evn && evn.keyCode == 13 ) )
 	{
-		if( document.activeElement != document.getElementById( "msg" ) )
+		if( shorten != document.getElementById( "msg" ) && shorten != document.getElementById( "botRegname" ) && shorten != document.getElementById( "botID" ) && shorten != document.getElementById( "botPassword" ) && shorten != document.getElementById( "botPassword" ) && shorten != document.getElementById( "botDevID" ) )
 		{
-			jqbox.fadeIn( 500 ).focus();
+			box.fadeIn( 500 ).focus();
 		}
-		else
+		else if( shorten == document.getElementById( "msg" ) )
 		{
 			if( msg == "" )
 			{
-				jqbox.blur().fadeOut( 500 );
+				box.blur().fadeOut( 500 );
+			}
+			else if( msg == "/config" || msg == cmdChar + "config" )
+			{
+				config.fadeToggle( 500 );
+				box.val( "" );
+				box.blur();
+				botRegname.focus();
 			}
 			else if( msg.charAt( 0 ) == cmdChar )
 			{
 				msg += " ";
 				var cmd = msg.substring( 1, msg.indexOf( " " ) );
 				handleCommand( cmd, msg.substring( msg.indexOf( " " ) + 1 ), id );
-				jqbox.val( "" );
+				box.val( "" );
 			}
 			else
 			{
 				sendMessage( msg );
-				jqbox.val( "" );
+				box.val( "" );
+			}
+		}
+		else if( shorten == document.getElementById( "botRegname" ) )
+		{
+			if( botRegname.val() != "" )
+			{
+				botRegname.blur();
+				botID.focus();
+			}
+		}
+		else if( shorten == document.getElementById( "botID" ) )
+		{
+			if( botID.val() != "" )
+			{
+				botID.blur();
+				botPassword.focus();
+			}
+		}
+		else if( shorten == document.getElementById( "botPassword" ) )
+		{
+			if( botPassword.val() != "" )
+			{
+				botPassword.blur();
+				botDevID.focus();
+			}
+		}
+		else if( shorten == document.getElementById( "botDevID" ) )
+		{
+			if( botDevID.val() != "" )
+			{
+				botDevID.blur();
+				submitConfigData( botRegname.val(), botID.val(), botPassword.val(), botDevID.val() );
+				config.fadeOut( 500 );
 			}
 		}
 	}
 }
+function submitConfigData( botRegname, botID, botPassword, botDevID )
+{
+	BotData.botRegname = botRegname;
+	BotData.botID = botID;
+	BotData.botRealPass = botPassword;
+	BotData.botdevs = " " + botDevID + " " + botID + " ";
+	setValue( "BotData", JSON.stringify( BotData ) );
+}
+
 document.onkeypress = enterPressed;
