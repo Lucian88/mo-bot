@@ -6,12 +6,12 @@
 // @contributor  Mobster (244080236)
 // @description  JavaScript bot for Xat Mobile.
 // @include      http://m.xat.com:10049/*
-// @version      0.6.0.0
+// @version      0.6.8.0
 // @icon         https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @icon64       https://mo-bot.googlecode.com/hg/icons/Mo-Bot.png
 // @homepage     http://code.google.com/p/mo-bot/
-// @require      https://mo-bot.googlecode.com/hg/jquery-1.7.1.js
-// @require      https://mo-bot.googlecode.com/hg/mo-bot.utils-1.0.1.js
+// @require      https://mo-bot.googlecode.com/hg/jquery-1.9.1.js
+// @require      https://mo-bot.googlecode.com/hg/mo-bot.utils-1.1.0.js
 // @updateURL    https://mo-bot.googlecode.com/hg/mo-bot.meta.js
 // ==/UserScript==
 
@@ -20,7 +20,7 @@
  * !!!!!!!!!!!!!!!!!!!!!!!!!!! VERY IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * !                                                                    !
- * !  REQUIRES SCRIPTISH ADD-ON FOR FIREFOX --- CANNOT BE USED WITHOUT  !
+ * !  REQUIRES GREASEMONKEY ADDON FOR FIREFOX - CANNOT BE USED WITHOUT  !
  * !                                                                    !
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!! VERY IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -990,7 +990,7 @@ function crypto( arg, alg )
 {
 	setTimeout( function() // unsafeWindow cannot call GM_cryptoHash()
 	{
-		var hashed = GM_cryptoHash( arg, alg );
+		var hashed = "Sorry! Currently broken. :("; //GM_cryptoHash( arg, alg );
 		if( alg == "SHA512" ) setTimeout( function() { sendMessage( hashed ); }, 1750 );
 		else if( alg == "SHA384" || alg == "SHA256" ) setTimeout( function() { sendMessage( hashed ); }, 1500 );
 		else setTimeout( function() { sendMessage( hashed ); }, 1000 );
